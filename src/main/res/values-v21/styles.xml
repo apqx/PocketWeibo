@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/light.colorPrimary</item>
+        <item name="colorPrimaryDark">@color/light.colorPrimaryDark</item>
+        <item name="colorAccent">@color/light.colorAccent</item>
+        <item name="android:navigationBarColor">@color/light.colorPrimary</item>
+    </style>
+    <style name="AppTheme.MainPage.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/light.colorPrimary</item>
+        <item name="colorPrimaryDark">@color/light.colorPrimaryDark</item>
+        <item name="colorAccent">@color/light.colorAccent</item>
+        <item name="android:navigationBarColor">@color/light.colorPrimary</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+    <style name="AppTheme.MainPage.Dark" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="colorPrimary">@color/dark.colorPrimary</item>
+        <item name="colorPrimaryDark">@color/dark.colorPrimaryDark</item>
+        <item name="colorAccent">@color/dark.colorAccent</item>
+        <item name="android:navigationBarColor">@color/dark.colorPrimary</item>
+    </style>
+    <style name="AppTheme.SplashTheme">
+        <item name="colorPrimaryDark">@color/light.colorPrimary</item>
+        <item name="android:navigationBarColor">@color/light.colorPrimary</item>
+    </style>
+    <style name="ViewTheme_Ripple">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+</resources>

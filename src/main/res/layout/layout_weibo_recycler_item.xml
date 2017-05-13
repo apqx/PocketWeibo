@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="5dp"
+    android:id="@+id/cardView_mainPage_item"
+    android:background="@color/cardview_light_background">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:theme="@style/ViewTheme_Ripple">
+
+        <me.apqx.pocketweibo.view.CircleImageView
+            android:id="@+id/imageView_main_item_head"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:scaleType="centerInside"
+            android:src="@mipmap/pic" />
+
+        <TextView
+            android:id="@+id/textView_main_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/imageView_main_item_head"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/imageView_main_item_head"
+            android:maxLines="1"
+            android:textColor="@android:color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="使徒子" />
+
+        <TextView
+            android:id="@+id/textView_main_item_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/textView_main_item_name"
+            android:layout_below="@id/textView_main_item_name"
+            android:layout_marginTop="5dp"
+            android:textAppearance="@style/textStyle_weibo_state"
+            tools:text="5 mins ago" />
+
+        <TextView
+            android:id="@+id/textView_main_item_device"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/textView_main_item_time"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/textView_main_item_time"
+            android:textAppearance="@style/textStyle_weibo_state"
+            tools:text="From Nexus 5" />
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/btn_main_item_expand"
+            android:background="@drawable/btn_expand_bg"
+            android:src="@drawable/icon_expand"
+            android:scaleType="center"
+            android:layout_alignTop="@id/textView_main_item_name"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"/>
+
+        <me.apqx.pocketweibo.view.LinkTextView
+            android:id="@+id/textView_main_item_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/imageView_main_item_head"
+            android:layout_below="@id/imageView_main_item_head"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:textAppearance="@style/textStyle_main_content"
+            tools:text="/@头条新闻" />
+
+        <ImageView
+            android:id="@+id/imageView_main_item_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/imageView_main_item_head"
+            android:layout_below="@id/textView_main_item_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
+            tools:src="@mipmap/pic" />
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout_main_item_reTwitter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/imageView_main_item_image"
+            android:layout_marginTop="10dp"
+            android:background="@color/bg_grey_light">
+
+            <me.apqx.pocketweibo.view.LinkTextView
+                android:id="@+id/textView_main_item_content_reTwitter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:textAppearance="@style/textStyle_main_content"
+                tools:text="/@头条新闻" />
+            <ImageView
+                android:id="@+id/imageView_main_item_reTwitter_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/textView_main_item_content_reTwitter"
+                android:layout_below="@id/textView_main_item_content_reTwitter"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:scaleType="centerCrop"
+                tools:src="@mipmap/pic" />
+
+            <TextView
+                android:id="@+id/textView_main_item_reTwitter_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/textView_main_item_content_reTwitter"
+                android:layout_below="@id/imageView_main_item_reTwitter_image"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:textAppearance="@style/textStyle_weibo_state"
+                tools:text="Reposts 133    Comments 365    Likes 365" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relativeLayout_main_item_reTwitter"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/btn_main_item_like"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/icon_like" />
+
+                <TextView
+                    android:id="@+id/textView_main_item_likeCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/btn_main_item_like"
+                    android:layout_marginLeft="5dp"
+                    android:textAppearance="@style/textStyle_weibo_state"
+                    tools:text="1" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/btn_main_item_comment"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/icon_comment" />
+
+                <TextView
+                    android:id="@+id/textView_main_item_commentCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/btn_main_item_comment"
+                    android:layout_marginLeft="5dp"
+                    android:textAppearance="@style/textStyle_weibo_state"
+                    tools:text="1" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/btn_main_item_rePost"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/icon_repost" />
+
+                <TextView
+                    android:id="@+id/textView_main_item_rePostCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/btn_main_item_rePost"
+                    android:layout_marginLeft="5dp"
+                    android:textAppearance="@style/textStyle_weibo_state"
+                    tools:text="1" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/btn_main_item_share"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/icon_share" />
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

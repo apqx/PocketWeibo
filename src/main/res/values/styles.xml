@@ -1,0 +1,36 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/light.colorPrimary</item>
+        <item name="colorPrimaryDark">@color/light.colorPrimaryDark</item>
+        <item name="colorAccent">@color/light.colorAccent</item>
+    </style>
+    <style name="AppTheme.MainPage.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/light.colorPrimary</item>
+        <item name="colorPrimaryDark">@color/light.colorPrimaryDark</item>
+        <item name="colorAccent">@color/light.colorAccent</item>
+    </style>
+    <style name="AppTheme.MainPage.Dark" parent="ThemeOverlay.AppCompat.Dark"/>
+    <style name="AppTheme.SplashTheme">
+        <item name="colorPrimaryDark">@color/light.colorPrimary</item>
+    </style>
+    <style name="textStyle_reTwitter_state">
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/color_grey_black</item>
+    </style>
+    <style name="textStyle_main_content">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">#2c3e50</item>
+    </style>
+    <style name="textStyle_weibo_state">
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/color_grey_black</item>
+    </style>
+    <style name="ViewTheme_Ripple">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+</resources>

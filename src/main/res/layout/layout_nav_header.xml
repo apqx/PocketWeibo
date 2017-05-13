@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:background="@color/light.colorPrimary">
+    <me.apqx.pocketweibo.view.CircleImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/imageView_nav_head"
+        android:layout_centerInParent="true"
+        android:src="@mipmap/pic"
+        android:scaleType="centerCrop" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_below="@id/imageView_nav_head"
+        android:text="apqx"
+        android:gravity="center"
+        android:textColor="@color/color_nav_username"
+        android:layout_marginTop="10dp"/>
+</RelativeLayout>
