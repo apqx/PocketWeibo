@@ -1,104 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <android.support.v7.widget.Toolbar
+    android:background="@color/color_white">
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:id="@+id/toolbar_WeiboDetail"
-        android:background="@color/light.colorPrimary">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:id="@+id/linearLayout_weibo_detail_user"
-            android:visibility="gone">
-            <me.apqx.pocketweibo.view.CircleImageView
-                android:layout_width="?android:attr/actionBarSize"
-                android:layout_height="?android:attr/actionBarSize"
-                android:id="@+id/imageView_weibo_detail_user_pic"
-                android:padding="10dp"
-                android:src="@mipmap/pic"/>
-            <TextView
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:id="@+id/toolbar_WeiboDetail"
+            android:background="@color/light.colorPrimary"
+            app:title=" ">
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:id="@+id/textView_weibo_detail_user_name"
-                tools:content="使徒子"
-                android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:gravity="center"/>
-        </LinearLayout>
-    </android.support.v7.widget.Toolbar>
+                android:orientation="horizontal"
+                android:id="@+id/linearLayout_weibo_detail_user"
+                android:visibility="gone">
+                <me.apqx.pocketweibo.view.CircleImageView
+                    android:layout_width="?android:attr/actionBarSize"
+                    android:layout_height="?android:attr/actionBarSize"
+                    android:id="@+id/imageView_weibo_detail_user_pic"
+                    android:padding="10dp"
+                    android:src="@mipmap/pic"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textView_weibo_detail_user_name"
+                    tools:text="使徒子"
+                    android:maxLines="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+<android.support.design.widget.CoordinatorLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_white">
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways"
+            android:id="@+id/recyclerView_weibo_Detail"/>
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/radio_weibo_detail_like"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:background="@drawable/radio_button_bg"
+                    tools:text="Likes 95"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/radio_weibo_detail_comment"
+                    android:checked="true"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:background="@drawable/radio_button_bg"
+                    tools:text="Comments 115"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/radio_weibo_detail_repost"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:background="@drawable/radio_button_bg"
+                    tools:text="Reposts 45"/>
+            </RadioGroup>
+        </android.support.v7.widget.CardView>
+    </android.support.design.widget.AppBarLayout>
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/recyclerView_weibo_Detail"/>
-    <android.support.v7.widget.CardView
+        android:layout_height="match_parent"
+        android:id="@+id/recyclerView_weibo_detail_likes"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:visibility="gone">
+
+    </android.support.v7.widget.RecyclerView>
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:orientation="horizontal"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/radio_weibo_detail_like"
-                android:layout_weight="1"
-                android:button="@null"
-                android:gravity="center"
-                android:background="@drawable/radio_button_bg"
-                tools:text="Likes 95"/>
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/radio_weibo_detail_comment"
-                android:checked="true"
-                android:layout_weight="1"
-                android:button="@null"
-                android:gravity="center"
-                android:background="@drawable/radio_button_bg"
-                tools:text="Comments 115"/>
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/radio_weibo_detail_repost"
-                android:layout_weight="1"
-                android:button="@null"
-                android:gravity="center"
-                android:background="@drawable/radio_button_bg"
-                tools:text="Reposts 45"/>
-        </RadioGroup>
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/recyclerView_weibo_detail_likes"
-            android:layout_marginTop="35dp"
-            android:visibility="gone">
+        android:layout_height="match_parent"
+        android:id="@+id/recyclerView_weibo_detail_comment"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        </android.support.v7.widget.RecyclerView>
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/recyclerView_weibo_detail_comment"
-            android:layout_marginTop="35dp">
+    </android.support.v7.widget.RecyclerView>
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/recyclerView_weibo_detail_repost"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:visibility="gone">
 
-        </android.support.v7.widget.RecyclerView>
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/recyclerView_weibo_detail_repost"
-            android:layout_marginTop="35dp"
-            android:visibility="gone">
-
-        </android.support.v7.widget.RecyclerView>
-    </android.support.v7.widget.CardView>
+    </android.support.v7.widget.RecyclerView>
 
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
+    </LinearLayout>

@@ -40,6 +40,7 @@ public class WebTools {
             while ((string=bufferedReader.readLine())!=null){
                 stringBuilder.append(string);
             }
+            Log.d(TAG,"GET web String url = "+stringUrl);
         }catch (MalformedURLException e){
             e.printStackTrace();
             Log.d(TAG,"URL Exception");

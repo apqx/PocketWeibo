@@ -5,16 +5,25 @@ import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import me.apqx.pocketweibo.tools.Tools;
+
 /**
  * Created by apqx on 2017/5/6.
  * 表示一条微博数据结构的类
  */
 
 public class WeiboItemData {
-    private String createTime,device, content,rePostCount,commentCount,likeCount,weiboId;
+    private String createTime;
+    private String device;
+    private String content;
+    private String rePostCount;
+    private String commentCount;
+    private String likeCount;
+    private String weiboId;
     private boolean favorited;
     private WeiboItemData reTwitterWeibo;
     private UserData weiboUserData;
+    private PicUrls picUrls;
     private WeiboItemData(Builder builder){
         this.createTime=builder.createTime;
         this.device=builder.device;
@@ -26,22 +35,18 @@ public class WeiboItemData {
         this.favorited=builder.favorited;
         this.reTwitterWeibo=builder.reTwitterWeibo;
         this.weiboUserData=builder.weiboUserData;
+        this.picUrls=builder.picUrls;
     }
     public boolean hasReTwitter(){
         return reTwitterWeibo!=null;
     }
 
+    public boolean hasPics(){
+        return picUrls!=null;
+    }
+
     public String getDevice() {
-        if (TextUtils.isEmpty(device)){
-            device="<a href=\"http://weibo.com\" rel=\"nofollow\">微博 weibo.com</a>";
-        }
-        int startIndex=device.indexOf(">")+1;
-        if (startIndex==0){
-            return device;
-        }
-        int endIndex=device.indexOf("<",startIndex);
-        device=device.substring(startIndex,endIndex);
-        return device;
+        return Tools.parseDevice(device);
     }
 
     public String getContent() {
@@ -49,7 +54,7 @@ public class WeiboItemData {
     }
 
     public String getCreateTime() {
-        return createTime.substring(0,7);
+        return Tools.parseTime(createTime);
     }
 
     public String getLikeCount() {
@@ -80,6 +85,10 @@ public class WeiboItemData {
         return weiboUserData;
     }
 
+    public PicUrls getPicUrls() {
+        return picUrls;
+    }
+
     @Override
     public String toString() {
         JSONObject jsonObject=null;
@@ -93,9 +102,12 @@ public class WeiboItemData {
             jsonObject.put(ParseJsonTools.LIKE_COUNT,likeCount);
             jsonObject.put(ParseJsonTools.WEIBO_ID,weiboId);
             jsonObject.put(ParseJsonTools.ISFAVORITED,favorited);
-            jsonObject.put(ParseJsonTools.USER,weiboUserData.toString());
+            jsonObject.put(ParseJsonTools.USER,ParseJsonTools.getJSONObjectFromString(weiboUserData.toString()));
             if (hasReTwitter()){
-                jsonObject.put(ParseJsonTools.RETWITTER,reTwitterWeibo.toString());
+                jsonObject.put(ParseJsonTools.RETWITTER,ParseJsonTools.getJSONObjectFromString(reTwitterWeibo.toString()));
+            }
+            if (hasPics()){
+                jsonObject.put(ParseJsonTools.IMAGES_SMALL,ParseJsonTools.getImagesFromString(picUrls.toString()));
             }
         }catch (JSONException e){
             e.printStackTrace();
@@ -105,11 +117,17 @@ public class WeiboItemData {
 
     public static class Builder{
         private final String DEFAULT="Default";
-        private String createTime=DEFAULT,device=DEFAULT, content =DEFAULT,rePostCount=DEFAULT,commentCount=DEFAULT,likeCount=DEFAULT,weiboId=DEFAULT;
+        private String createTime;
+        private String device;
+        private String content;
+        private String rePostCount;
+        private String commentCount;
+        private String likeCount;
+        private String weiboId;
         private boolean favorited;
         private WeiboItemData reTwitterWeibo;
         private UserData weiboUserData;
-
+        private PicUrls picUrls;
         public Builder setCreateTime(String createTime){
             this.createTime=createTime;
             return this;
@@ -159,6 +177,12 @@ public class WeiboItemData {
             this.weiboUserData = weiboUserData;
             return this;
         }
+
+        public Builder setPicUrls(PicUrls picUrls) {
+            this.picUrls = picUrls;
+            return this;
+        }
+
         public WeiboItemData build(){
             return new WeiboItemData(this);
         }

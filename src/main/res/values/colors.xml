@@ -13,4 +13,5 @@
     <color name="color_grey_black">#757575</color>
     <color name="color_ripple_grey">#bdc3c7</color>
     <color name="color_nav_username">@color/color_white</color>
+    <color name="transparent">#20000000</color>
 </resources>

@@ -8,7 +8,18 @@ import org.json.JSONObject;
  */
 
 public class UserData {
-    private String userName,userHeadPicURL,profileBGUrl, profileDescription,location,followingCount,followerCount,websiteUrl,gender;
+    private String userName;
+    private String userHeadPicURL;
+    private String profileBGUrl;
+    private String profileDescription;
+    private String location;
+    private String followingCount;
+    private String followerCount;
+    private String websiteUrl;
+    private String gender;
+    private String likeCount;
+    private String imageHeadUrl;
+    private String imageBgUrl;
     private boolean isFollowed;
     public UserData(Builder builder){
         this.userName=builder.userName;
@@ -20,6 +31,7 @@ public class UserData {
         this.followerCount=builder.followerCount;
         this.websiteUrl=builder.websiteUrl;
         this.gender=builder.gender;
+        this.likeCount=builder.likeCount;
         this.isFollowed=builder.isFollowed;
     }
     public String getUserName() {
@@ -58,6 +70,11 @@ public class UserData {
         return gender;
     }
 
+    public String getLikeCount() {
+        return likeCount;
+    }
+
+
     public boolean isFollowed(){
         return isFollowed;
     }
@@ -76,7 +93,9 @@ public class UserData {
             jsonObject.put(ParseJsonTools.FOLLOWERS_COUNT,followerCount);
             jsonObject.put(ParseJsonTools.WEBSITE_URL,websiteUrl);
             jsonObject.put(ParseJsonTools.GENDER,gender);
+            jsonObject.put(ParseJsonTools.LIKE_COUNT,likeCount);
             jsonObject.put(ParseJsonTools.ISFOLLOWING,isFollowed);
+
         }catch (JSONException e){
             e.printStackTrace();
         }
@@ -85,7 +104,16 @@ public class UserData {
 
     public static class Builder{
         private final String DEFAULT="Default";
-        private String userName=DEFAULT,userHeadPicURL=DEFAULT,profileBGUrl=DEFAULT, profileDescription=DEFAULT,location=DEFAULT,followingCount=DEFAULT,followerCount=DEFAULT,websiteUrl=DEFAULT,gender=DEFAULT;
+        private String userName;
+        private String userHeadPicURL;
+        private String profileBGUrl;
+        private String profileDescription;
+        private String location;
+        private String followingCount;
+        private String followerCount;
+        private String websiteUrl;
+        private String gender;
+        private String likeCount;
         private boolean isFollowed;
 
         public Builder setUserName(String userName) {
@@ -137,6 +165,12 @@ public class UserData {
             this.gender = gender;
             return this;
         }
+
+        public Builder setLikeCount(String likeCount) {
+            this.likeCount = likeCount;
+            return this;
+        }
+
         public UserData build(){
             return new UserData(this);
         }

@@ -14,7 +14,11 @@
         </activity>
         <activity android:name=".MainPageActivity"
             android:theme="@style/AppTheme.MainPage.Light"/>
-        <activity android:name=".WeiboDetailActivity"/>
+        <activity android:name=".WeiboDetailActivity"
+            android:theme="@style/AppTheme.TransparentBg"/>
+        <activity android:name=".UserDataActivity"
+            android:theme="@style/AppTheme.TransparentBg"/>
+        <activity android:name=".TempActivity"/>
     </application>
 
 </manifest>

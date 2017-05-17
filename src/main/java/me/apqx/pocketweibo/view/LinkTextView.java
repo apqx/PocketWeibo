@@ -61,7 +61,7 @@ public class LinkTextView extends AppCompatTextView {
 
         }
         //识别内容中的链接 http:\/\/m.weibo.cn\/5044281310\/4103430798429973
-        Matcher matcherInnerLink=Pattern.compile("(http[^,，。?（）()\\n]+)[\\s（）()，。,？\\n]").matcher(spannableString);
+        Matcher matcherInnerLink=Pattern.compile("(http[^\\s,，。?（）()\\n]+)[\\s（）()，。,？\\n]*").matcher(spannableString);
         while (matcherInnerLink.find()){
             Log.d(TAG,"inner link "+matcherInnerLink.group(1));
             spannableString.setSpan(new MyClickableSpan(matcherInnerLink.group(1),MyClickableSpan.TYPE_INNER_LINK),matcherInnerLink.start(),matcherInnerLink.start()+matcherInnerLink.group(1).length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -97,7 +97,7 @@ public class LinkTextView extends AppCompatTextView {
         @Override
         public void updateDrawState(TextPaint ds) {
             //设置链接样式
-            ds.setColor(LinkTextView.this.getResources().getColor(R.color.light_colorAccent));
+            ds.setColor(LinkTextView.this.getResources().getColor(R.color.light_colorPrimary));
             ds.setUnderlineText(false);
         }
 

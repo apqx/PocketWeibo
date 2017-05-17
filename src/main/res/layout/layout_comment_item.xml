@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:theme="@style/ViewTheme_Ripple">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/cardview_light_background">
+        <me.apqx.pocketweibo.view.CircleImageView
+            android:id="@+id/imageView_comment_item_head"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:scaleType="centerInside"
+            android:src="@mipmap/pic" />
+
+        <TextView
+            android:id="@+id/textView_comment_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/imageView_comment_item_head"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/imageView_comment_item_head"
+            android:maxLines="1"
+            android:textColor="@android:color/black"
+            android:textSize="12sp"
+            tools:text="使徒子" />
+
+        <TextView
+            android:id="@+id/textView_comment_item_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/textView_comment_item_name"
+            android:layout_below="@id/textView_comment_item_name"
+            android:layout_marginTop="5dp"
+            android:textAppearance="@style/textStyle_weibo_state"
+            tools:text="5 mins ago" />
+
+        <TextView
+            android:id="@+id/textView_comment_item_device"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/textView_comment_item_time"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/textView_comment_item_time"
+            android:textAppearance="@style/textStyle_weibo_state"
+            tools:text="From Nexus 5" />
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/btn_comment_item_expand"
+            android:background="@drawable/btn_expand_bg"
+            android:src="@drawable/icon_expand"
+            android:scaleType="center"
+            android:layout_alignTop="@id/textView_comment_item_name"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"/>
+        <me.apqx.pocketweibo.view.LinkTextView
+            android:id="@+id/textView_comment_item_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/imageView_comment_item_head"
+            android:layout_below="@id/imageView_comment_item_head"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:textAppearance="@style/textStyle_main_content"
+            tools:text="/@头条新闻" />
+    </RelativeLayout>
+</LinearLayout>

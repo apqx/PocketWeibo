@@ -22,5 +22,9 @@
     <string name="add_to_favorite">Add to favorite successful</string>
     <string name="unfollow_success">UnFollow successful</string>
     <string name="follow_success">Follow successful</string>
+    <string name="web_error">Web error</string>
+    <string name="refresh_weibo">Refresh weibo</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
 
 </resources>
