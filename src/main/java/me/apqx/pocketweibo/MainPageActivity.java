@@ -1,11 +1,15 @@
 package me.apqx.pocketweibo;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,14 +19,19 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -39,10 +48,13 @@ import me.apqx.pocketweibo.tools.WebTools;
 
 public class MainPageActivity extends AppCompatActivity {
     private static final String TAG="MainPageActivity";
-    private static final int FILL_FROM_WEB_UP =0;
-    private static final int FILL_FROM_WEB_DOWN =1;
-    private static final int FILL_FROM_LOCAL=2;
+    private static final int FILL_WEIBO_FROM_WEB_UP =0;
+    private static final int FILL_WEIBO_FROM_WEB_DOWN =1;
+    private static final int FILL_WEIBO_FROM_LOCAL =2;
     private static final int READ_WEB_ERROR=3;
+    private static final int READ_USERDATA_FROM_WEB=4;
+    private static final int READ_USERDATA_FROM_LOCAL=5;
+    private static final int READ_USERDATA_FROM_LOCAL_ERROR=6;
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
@@ -50,10 +62,17 @@ public class MainPageActivity extends AppCompatActivity {
     private ExecutorService exec;
     private Handler handler;
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private WeiboItemRecyclerAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView.LayoutManager layoutManager;
+    private NavigationView navigationView;
+    private View headLayout;
+    private SimpleDraweeView simpleDraweeView_head;
+    private TextView textView_userName;
+    private UserData userData;
     //本地的微博列表是源JSONObject转换的WeiboItemData对象
     private static List<WeiboItemData> list;
+    private List<WeiboItemData> tempList;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,35 +83,56 @@ public class MainPageActivity extends AppCompatActivity {
         toggle=new ActionBarDrawerToggle(this,drawerLayout,toolbar, R.string.nav_open,R.string.nav_close);
         toggle.syncState();
         drawerLayout.addDrawerListener(toggle);
+        navigationView=(NavigationView)findViewById(R.id.navigationView);
+        headLayout=navigationView.getHeaderView(0);
 
         fab=(FloatingActionButton)findViewById(R.id.fab);
         swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout_main_page);
         swipeRefreshLayout.setOnRefreshListener(new MyOnRefreshListener());
+        View navView= LayoutInflater.from(this).inflate(R.layout.layout_nav_header,null);
+        simpleDraweeView_head=(SimpleDraweeView)headLayout.findViewById(R.id.simpleDraweeView_nav_head);
+//        Log.d(TAG,simpleDraweeView_head.toString());
+        textView_userName=(TextView)headLayout.findViewById(R.id.textView_nav_username);
 
+        int resource;
+        if (isPad()){
+            resource=R.layout.layout_weibo_recycler_item_pad;
+        }else {
+            resource=R.layout.layout_weibo_recycler_item;
+        }
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView_mainPage);
         list=new ArrayList<WeiboItemData>();
-        adapter=new WeiboItemRecyclerAdapter(list,R.layout.layout_weibo_recycler_item,WeiboItemRecyclerAdapter.WEIBO_MAINPAGE_LIST);
-        RecyclerView.LayoutManager layoutManager=null;
+        adapter=new WeiboItemRecyclerAdapter(list,resource,WeiboItemRecyclerAdapter.WEIBO_MAINPAGE_LIST,this);
         if (isPad()||getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE){
             layoutManager=new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         }else {
             layoutManager=new LinearLayoutManager(this);
         }
+
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        exec=MyThreadPool.getThreadPool();
+        exec= AppThreadPool.getThreadPool();
         handler=new DataHandler();
+
+        Intent intent=getIntent();
+        String uid=intent.getStringExtra("uid");
         //启动时，首先从本地读取保存好的微博，如果本地不存在缓存文件，就从网络中读取
-        List<WeiboItemData> tempList=Tools.readWeiboListFromLocal();
-        if (tempList!=null){
-            list.clear();
-            list.addAll(tempList);
-            adapter.notifyDataSetChanged();
-        }else {
-            swipeRefreshLayout.setRefreshing(true);
-            exec.execute(new TaskLoadNewWeibo());
-        }
+        exec.execute(new TaskReadWeiboListFromLocal());
+        //启动时，先从本地读取用户信息
+        exec.execute(new TaskReadUserDataFromLocal(uid));
+
+
+        adapter.setOnRefreshDownListener(new WeiboItemRecyclerAdapter.OnRefreshDownListener() {
+            @Override
+            public void refreshDown() {
+                if (list.size()>0){
+                    exec.execute(new TaskLoadOldWeibo(list.get(list.size()-1).getWeiboId()));
+                }
+            }
+        });
+
+
     }
 
     @Override
@@ -100,6 +140,20 @@ public class MainPageActivity extends AppCompatActivity {
         super.onDestroy();
         drawerLayout.removeDrawerListener(toggle);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode==0){
+            if (grantResults.length>0&&grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                //说明申请权限成功
+                WebTools.startDownLoadPics(handler);
+            }else {
+                Tools.showToast(getString(R.string.permission_denied));
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     //判断是不是平板电脑
     private boolean isPad() {
         return (getResources().getConfiguration().screenLayout
@@ -111,25 +165,56 @@ public class MainPageActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.arg1){
                 case READ_WEB_ERROR:
-                    Toast.makeText(MainPageActivity.this, R.string.web_error,Toast.LENGTH_SHORT).show();
+                    Tools.showToast(R.string.web_error);
                     if (swipeRefreshLayout.isRefreshing()){
                         swipeRefreshLayout.setRefreshing(false);
                     }
                     break;
-                case FILL_FROM_WEB_UP:
+                case FILL_WEIBO_FROM_LOCAL:
+                    if (tempList!=null){
+                        list.clear();
+                        list.addAll(tempList);
+                        adapter.notifyDataSetChanged();
+                    }else {
+                        swipeRefreshLayout.setRefreshing(true);
+                        exec.execute(new TaskLoadNewWeibo());
+                    }
+                    Log.d("LinkTextView",list.get(2).getContent());
+                    break;
+                case FILL_WEIBO_FROM_WEB_UP:
                     //向上刷新
                     if (swipeRefreshLayout.isRefreshing()){
                         swipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(MainPageActivity.this, getString(R.string.refresh_weibo)+" "+msg.arg2,Toast.LENGTH_SHORT).show();
-                        adapter.notifyDataSetChanged();
                     }
+                    Tools.showToast(R.string.refresh_weibo);
+                    adapter.notifyDataSetChanged();
                     //每一次刷新微博，应该立即将微博列表保存到本地
                     exec.execute(new TaskSaveWeiboToLocal());
                     break;
-                case FILL_FROM_WEB_DOWN:
+                case FILL_WEIBO_FROM_WEB_DOWN:
+                    //向下刷新，读取更早前的微博
+                    Tools.showToast(R.string.refresh_weibo);
+                    adapter.notifyDataSetChanged();
+                    exec.execute(new TaskSaveWeiboToLocal());
+                    break;
+                case READ_USERDATA_FROM_WEB:
+                    simpleDraweeView_head.setImageURI(userData.getUserHeadPicURL());
+                    textView_userName.setText(userData.getUserName());
+                    exec.execute(new TaskSaveUserToLocal());
+                    Log.d(TAG,userData.getUserName()+" pic head url "+userData.getUserHeadPicURL());
+                    break;
+                case READ_USERDATA_FROM_LOCAL:
+                    if (userData!=null){
+                        //说明本地读取成功
+                        simpleDraweeView_head.setImageURI(userData.getUserHeadPicURL());
+                        textView_userName.setText(userData.getUserName());
+                        Log.d(TAG,userData.getUserName()+" pic head url "+userData.getUserHeadPicURL());
+                    }else {
+                        //否则从网络读取
+                        exec.execute(new TaskLoadUserData(Constant.accessToken.getUid()));
+                    }
                     break;
             }
-            adapter.notifyDataSetChanged();
         }
     }
     //对外提供方法，可以当前列表中查询指定ID的微博
@@ -173,7 +258,6 @@ public class MainPageActivity extends AppCompatActivity {
 
 
     private class TaskLoadNewWeibo implements Runnable{
-
         @Override
         public void run() {
             String urlString="https://api.weibo.com/2/statuses/home_timeline.json?access_token="+Constant.accessToken.getToken();
@@ -195,7 +279,7 @@ public class MainPageActivity extends AppCompatActivity {
                         }
                     }
                     Message message=new Message();
-                    message.arg1=FILL_FROM_WEB_UP;
+                    message.arg1= FILL_WEIBO_FROM_WEB_UP;
                     message.arg2=jsonArray.length();
                     handler.sendMessage(message);
                 }catch (JSONException e){
@@ -206,14 +290,14 @@ public class MainPageActivity extends AppCompatActivity {
     }
 
     private class TaskLoadOldWeibo implements Runnable{
-        private String sinceId;
-        public TaskLoadOldWeibo(String sinceId){
-            this.sinceId=sinceId;
+        private String max_id;
+        public TaskLoadOldWeibo(String max_id){
+            this.max_id=Long.parseLong(max_id)-1+"";
         }
         @Override
         public void run() {
             //获取比给定微博ID早的微博
-            String urlString="https://api.weibo.com/2/statuses/home_timeline.json?access_token="+Constant.accessToken.getToken();
+            String urlString="https://api.weibo.com/2/statuses/home_timeline.json?access_token="+Constant.accessToken.getToken()+"&max_id="+max_id;
             String weibos= WebTools.getWebString(urlString);
             if (weibos==null){
                 //从网络中读取错误
@@ -231,8 +315,40 @@ public class MainPageActivity extends AppCompatActivity {
                         }
                     }
                     Message message=new Message();
-                    message.arg1=FILL_FROM_WEB_DOWN;
+                    message.arg1= FILL_WEIBO_FROM_WEB_DOWN;
+                    message.arg2=jsonArray.length();
                     handler.sendMessage(message);
+                }catch (JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private class TaskLoadUserData implements Runnable{
+        private String userId;
+        TaskLoadUserData(String userId){
+            this.userId=userId;
+        }
+        @Override
+        public void run() {
+            //这里使用UID获取用户信息，链接可能不对
+            String urlString="https://api.weibo.com/2/users/show.json?access_token="+Constant.accessToken.getToken()+"&uid="+userId;
+            String userDataJson= WebTools.getWebString(urlString);
+            if (userDataJson==null){
+                //从网络中读取错误
+                Message message=new Message();
+                message.arg1=READ_WEB_ERROR;
+                handler.sendMessage(message);
+                Log.d(TAG,"Refresh userdata failed");
+            }else {
+                try{
+                    JSONObject jsonObject=new JSONObject(userDataJson);
+                    userData=ParseJsonTools.getUserDataFromJson(jsonObject);
+                    Message message=new Message();
+                    message.arg1=READ_USERDATA_FROM_WEB;
+                    handler.sendMessage(message);
+                    Log.d(TAG,"get userdata from web "+userId);
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -251,5 +367,35 @@ public class MainPageActivity extends AppCompatActivity {
             Tools.saveWeiboListToLocal(list);
         }
     }
+    private class TaskSaveUserToLocal implements Runnable{
+        @Override
+        public void run() {
+            Tools.saveUserDataToLocal(userData);
+        }
+    }
+    private class TaskReadUserDataFromLocal implements Runnable{
+        private String userId;
+        TaskReadUserDataFromLocal(String userId){
+            this.userId=userId;
+        }
+        @Override
+        public void run() {
+            userData=Tools.readUserDataFromLocal(userId);
+            Message message=new Message();
+            message.arg1=READ_USERDATA_FROM_LOCAL;
+            handler.sendMessage(message);
+        }
+    }
+    private class TaskReadWeiboListFromLocal implements Runnable{
+        @Override
+        public void run() {
+            tempList=Tools.readWeiboListFromLocal();
+            Message message=new Message();
+            message.arg1=FILL_WEIBO_FROM_LOCAL;
+            handler.sendMessage(message);
+        }
+    }
+
+
 
 }

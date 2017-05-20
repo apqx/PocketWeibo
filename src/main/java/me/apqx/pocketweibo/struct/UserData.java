@@ -18,8 +18,7 @@ public class UserData {
     private String websiteUrl;
     private String gender;
     private String likeCount;
-    private String imageHeadUrl;
-    private String imageBgUrl;
+    private String userId;
     private boolean isFollowed;
     public UserData(Builder builder){
         this.userName=builder.userName;
@@ -33,6 +32,7 @@ public class UserData {
         this.gender=builder.gender;
         this.likeCount=builder.likeCount;
         this.isFollowed=builder.isFollowed;
+        this.userId=builder.userId;
     }
     public String getUserName() {
         return userName;
@@ -43,6 +43,9 @@ public class UserData {
     }
 
     public String getProfileBGUrl() {
+        if (profileBGUrl.contains(";")){
+            return profileBGUrl.split(";")[0];
+        }
         return profileBGUrl;
     }
 
@@ -74,6 +77,9 @@ public class UserData {
         return likeCount;
     }
 
+    public String getUserId() {
+        return userId;
+    }
 
     public boolean isFollowed(){
         return isFollowed;
@@ -95,6 +101,7 @@ public class UserData {
             jsonObject.put(ParseJsonTools.GENDER,gender);
             jsonObject.put(ParseJsonTools.LIKE_COUNT,likeCount);
             jsonObject.put(ParseJsonTools.ISFOLLOWING,isFollowed);
+            jsonObject.put(ParseJsonTools.USER_ID,userId);
 
         }catch (JSONException e){
             e.printStackTrace();
@@ -114,6 +121,7 @@ public class UserData {
         private String websiteUrl;
         private String gender;
         private String likeCount;
+        private String userId;
         private boolean isFollowed;
 
         public Builder setUserName(String userName) {
@@ -168,6 +176,11 @@ public class UserData {
 
         public Builder setLikeCount(String likeCount) {
             this.likeCount = likeCount;
+            return this;
+        }
+
+        public Builder setUserId(String userId) {
+            this.userId = userId;
             return this;
         }
 

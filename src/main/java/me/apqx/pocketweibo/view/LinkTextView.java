@@ -49,13 +49,14 @@ public class LinkTextView extends AppCompatTextView {
 //        text="[赞]//@天上-的蝎:胡适之，李叔同，张爱玲，http://m.weibo.cn/5044281310/4103430798429973 齐白石，张大千，梁漱溟 //@张晨初艺术空间,:是的，其他呢？[good]//@温温122365:第二张 弘一大师#中国历史#...全文： http://m.weibo.cn/5044281310/4103430798429973 ​";
         SpannableString spannableString=new SpannableString(text);
         //识别省略的链接 全文： http:\/\/m.weibo.cn\/5044281310\/4103430798429973 ​
-        Matcher matcherEndLink=Pattern.compile("(全文\\W+)(http[^,，。?（）()\\n@]+)[\\s（）@()，。,？\\n]*").matcher(text);
+        Matcher matcherEndLink=Pattern.compile("(全文\\W+)(http[^,，。?\\n@]+)[\\s\\n]*").matcher(text);
         if (matcherEndLink.find()){
             String string=getContext().getString(R.string.linkTextView_more);
             Log.d(TAG,"end link "+matcherEndLink.group());
             String url=matcherEndLink.group(2);
             int start=matcherEndLink.start(1);
             text=matcherEndLink.replaceAll(string);
+            Log.d(TAG,text.toString());
             spannableString=new SpannableString(text);
             spannableString.setSpan(new MyClickableSpan(url,MyClickableSpan.TYPE_END_LINK),start,start+string.length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
 
@@ -104,7 +105,7 @@ public class LinkTextView extends AppCompatTextView {
         @Override
         public void onClick(View widget) {
             //点击链接后的行为
-            Toast.makeText(LinkTextView.this.getContext(),userName+" "+type,Toast.LENGTH_SHORT).show();
+            Tools.showToast(userName+" "+type);
             shouldInterruptClick=true;
         }
     }

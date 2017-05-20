@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<me.relex.photodraweeview.PhotoDraweeView
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/simpleDraweeView_main_item_head"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    fresco:actualImageScaleType="center"
+    fresco:placeholderImage="@drawable/icon_preload"
+    fresco:placeholderImageScaleType="fitCenter"
+    fresco:failureImage="@drawable/icon_loadfailed"
+    fresco:failureImageScaleType="centerInside"
+    fresco:progressBarImage="@drawable/icon_refreshing"
+    fresco:progressBarImageScaleType="centerInside"
+    fresco:progressBarAutoRotateInterval="1000"/>

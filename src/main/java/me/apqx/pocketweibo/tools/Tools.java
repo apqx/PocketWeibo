@@ -26,6 +26,7 @@ import java.util.List;
 import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
+import me.apqx.pocketweibo.struct.UserData;
 import me.apqx.pocketweibo.struct.WeiboItemData;
 
 /**
@@ -35,6 +36,16 @@ import me.apqx.pocketweibo.struct.WeiboItemData;
 
 public class Tools {
     private static final String TAG="Tools";
+    private static Toast toast=Toast.makeText(MyApplication.getContext(),"",Toast.LENGTH_SHORT);
+    public static void showToast(String string){
+        toast.setText(string);
+        toast.show();
+    }
+    public static void init(){}
+    public static void showToast(int resId){
+        toast.setText(resId);
+        toast.show();
+    }
     public static void closeStream(Object object){
         InputStream inputStream=null;
         OutputStream outputStream=null;
@@ -158,6 +169,21 @@ public class Tools {
         Log.d(TAG,"readWeiboListFromLocal num = "+list.size());
         return list;
     }
+    public static void saveUserDataToLocal(UserData userData){
+        saveFileToLocal(userData.toString(),userData.getUserId()+".json");
+        Log.d(TAG,"save userdata to local username is "+userData.getUserName()+" id is "+userData.getUserId());
+    }
+    public static UserData readUserDataFromLocal(String userId){
+        String string=readStringFromLocal(userId+".json");
+        if (string==null){
+            Log.d(TAG,"read userdata from local failed");
+            return null;
+        }
+        UserData userData=ParseJsonTools.getUserDataFromJson(ParseJsonTools.getJSONObjectFromString(string));
+        Log.d(TAG,"read userdata from local succeed");
+        return userData;
+    }
+
 
 
 }

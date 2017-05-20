@@ -19,6 +19,8 @@ import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 
+import me.apqx.pocketweibo.tools.Tools;
+
 /**
  * Created by apqx on 2017/5/2.
  * A Splash activity to show a welcome page.
@@ -31,6 +33,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Tools.init();
         setContentView(R.layout.layout_splash);
         linearLayoutLogo=(LinearLayout) findViewById(R.id.linearLayout_logo);
 
@@ -56,8 +59,11 @@ public class SplashActivity extends Activity {
                 //开始页动画执行完毕后，读取本地文件，判断是否应该引导用户授权
                 Constant.accessToken=AccessTokenKeeper.readAccessToken(SplashActivity.this);
                 if (Constant.accessToken!=null&&Constant.accessToken.isSessionValid()){
+
                     //不需要授权，直接启动主页面
-                    startActivity(new Intent(SplashActivity.this,MainPageActivity.class));
+                    Intent intent=new Intent(new Intent(SplashActivity.this,MainPageActivity.class));
+                    intent.putExtra("uid",Constant.accessToken.getUid());
+                    startActivity(intent);
                 }else {
                     //引导用户授权
                     ssoHandler.authorizeWeb(new AuthListener());
@@ -95,14 +101,14 @@ public class SplashActivity extends Activity {
             if (Constant.accessToken.isSessionValid()){
                 //授权成功，将获得的token保存到本地
                 AccessTokenKeeper.writeAccessToken(SplashActivity.this,Constant.accessToken);
-                Toast.makeText(SplashActivity.this, R.string.authority_success,Toast.LENGTH_SHORT).show();
+                Tools.showToast(R.string.authority_success);
                 startActivity(new Intent(SplashActivity.this,MainPageActivity.class));
             }else {
                 //授权失败，获取失败码
                 String code=bundle.getString("code");
                 Log.d(TAG,"authority error code is "+code);
                 if (!TextUtils.isEmpty(code)){
-                    Toast.makeText(SplashActivity.this, R.string.authority_failed+" code is "+code,Toast.LENGTH_SHORT).show();
+                    Tools.showToast(getString(R.string.authority_failed)+" code is "+code);
                 }
                 //重新授权
                 ssoHandler.authorizeWeb(new AuthListener());

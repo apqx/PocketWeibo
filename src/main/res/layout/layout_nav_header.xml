@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
-    android:background="@color/light.colorPrimary">
-    <me.apqx.pocketweibo.view.CircleImageView
+    android:layout_height="150dp">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@mipmap/user_bg"
+        android:scaleType="centerCrop"/>
+    <com.facebook.drawee.view.SimpleDraweeView
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:id="@+id/imageView_nav_head"
+        android:id="@+id/simpleDraweeView_nav_head"
         android:layout_centerInParent="true"
-        android:src="@mipmap/pic"
-        android:scaleType="centerCrop" />
+        fresco:actualImageScaleType="centerInside"
+        fresco:placeholderImage="@drawable/icon_preload"
+        fresco:placeholderImageScaleType="centerInside"
+        fresco:failureImage="@drawable/icon_loadfailed"
+        fresco:failureImageScaleType="centerInside"
+        fresco:progressBarImage="@drawable/icon_refreshing"
+        fresco:progressBarImageScaleType="centerInside"
+        fresco:progressBarAutoRotateInterval="1000"
+        fresco:roundAsCircle="true" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:layout_below="@id/imageView_nav_head"
-        android:text="apqx"
+        android:id="@+id/textView_nav_username"
+        android:layout_below="@id/simpleDraweeView_nav_head"
+        tools:text="apqx"
         android:gravity="center"
         android:textColor="@color/color_nav_username"
         android:layout_marginTop="10dp"/>

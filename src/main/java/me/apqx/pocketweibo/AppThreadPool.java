@@ -7,13 +7,14 @@ import java.util.concurrent.Executors;
  * Created by apqx on 2017/5/14.
  */
 
-public class MyThreadPool {
+public class AppThreadPool {
     private static ExecutorService exec;
-    private MyThreadPool(){}
+    private AppThreadPool(){}
     public static ExecutorService getThreadPool(){
         if (exec==null){
             exec=Executors.newCachedThreadPool();
         }
         return exec;
     }
+
 }

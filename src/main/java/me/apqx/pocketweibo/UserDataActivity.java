@@ -1,9 +1,11 @@
 package me.apqx.pocketweibo;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,7 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
 import me.apqx.pocketweibo.struct.UserData;
 import me.apqx.pocketweibo.struct.WeiboItemData;
+import me.apqx.pocketweibo.tools.Tools;
 import me.apqx.pocketweibo.tools.WebTools;
 import me.apqx.pocketweibo.view.SwipeActivityHelper;
 import me.apqx.pocketweibo.view.SwipeActivityLayout;
@@ -46,8 +50,8 @@ public class UserDataActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private MenuItem menuItem_follow;
-    private ImageView imageView_head;
-    private ImageView imageView_bg;
+    private SimpleDraweeView imageView_head;
+    private SimpleDraweeView imageView_bg;
     private ImageView imageView_gender;
     private TextView textView_name;
     private TextView textView_location;
@@ -58,7 +62,7 @@ public class UserDataActivity extends AppCompatActivity {
     private List<WeiboItemData> list;
     private WeiboItemRecyclerAdapter adapter;
     private UserData userData;
-    private ExecutorService exec=MyThreadPool.getThreadPool();
+    private ExecutorService exec= AppThreadPool.getThreadPool();
     private Handler handler;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,8 +75,8 @@ public class UserDataActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        imageView_head=(ImageView)findViewById(R.id.imageView_user_page_head);
-        imageView_bg=(ImageView)findViewById(R.id.imageView_user_page_bg);
+        imageView_head=(SimpleDraweeView) findViewById(R.id.imageView_user_page_head);
+        imageView_bg=(SimpleDraweeView) findViewById(R.id.imageView_user_page_bg);
         imageView_gender=(ImageView)findViewById(R.id.imageView_user_page_gender);
         textView_name=(TextView)findViewById(R.id.textView_user_page_name);
         textView_location=(TextView)findViewById(R.id.textView_user_page_location);
@@ -81,7 +85,7 @@ public class UserDataActivity extends AppCompatActivity {
         textView_description=(TextView)findViewById(R.id.textView_user_page_description);
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView_user_page_weibo);
         list=new ArrayList<WeiboItemData>();
-        adapter=new WeiboItemRecyclerAdapter(list,R.layout.layout_weibo_recycler_item,WeiboItemRecyclerAdapter.WEIBO_USER_PAGE);
+        adapter=new WeiboItemRecyclerAdapter(list,R.layout.layout_weibo_recycler_item,WeiboItemRecyclerAdapter.WEIBO_USER_PAGE,this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
@@ -89,7 +93,7 @@ public class UserDataActivity extends AppCompatActivity {
         Intent intent=getIntent();
         String userName=intent.getStringExtra("apqx");
         userData=MainPageActivity.getUserData(userName);
-        if (userData!=null){
+        if (userData==null){
             //这时应该联网查询
             exec.execute(new TaskGetUserDataFromWeb(userName));
         }else {
@@ -106,8 +110,12 @@ public class UserDataActivity extends AppCompatActivity {
         textView_followers.setText(getString(R.string.followers)+" "+userData.getFollowerCount());
         textView_following.setText(getString(R.string.following)+" "+userData.getFollowingCount());
         textView_description.setText(userData.getProfileDescription());
+        imageView_head.setImageURI(userData.getUserHeadPicURL());
+        imageView_bg.setImageURI(userData.getProfileBGUrl());
 
     }
+
+
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -119,6 +127,19 @@ public class UserDataActivity extends AppCompatActivity {
                 UserDataActivity.this.finish();
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode==0){
+            if (grantResults.length>0&&grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                //说明申请权限成功
+                WebTools.startDownLoadPics(handler);
+            }else {
+                Tools.showToast(getString(R.string.permission_denied));
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -152,10 +173,10 @@ public class UserDataActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     break;
                 case TYPE_GET_USERDATA_FROM_WEB_ERROR:
-                    Toast.makeText(UserDataActivity.this,"Refresh userdata failed",Toast.LENGTH_SHORT).show();
+                    Tools.showToast(R.string.refresh_userdata_failed);
                     break;
                 case TYPE_GET_WEIBO_FROM_WEB_ERROR:
-                    Toast.makeText(UserDataActivity.this,"Refresh weibo failed",Toast.LENGTH_SHORT).show();
+                    Tools.showToast(R.string.refresh_weibo_failed);
                     break;
                 default:break;
             }

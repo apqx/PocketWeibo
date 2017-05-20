@@ -2,12 +2,19 @@ package me.apqx.pocketweibo;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import me.apqx.pocketweibo.view.SwipeActivityHelper;
 import me.apqx.pocketweibo.view.SwipeActivityLayout;
@@ -18,7 +25,6 @@ import me.apqx.pocketweibo.view.SwipeActivityLayout;
 
 public class TempActivity extends Activity{
     private SwipeActivityHelper swipeActivityHelper;
-    private float percent=0.1f;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,31 +32,14 @@ public class TempActivity extends Activity{
         swipeActivityHelper=new SwipeActivityHelper(this);
         swipeActivityHelper.onActivityCreate();
 
-        ImageView imageView=(ImageView)findViewById(R.id.imageView);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setBackgroundColor(getBackColor(percent));
-                percent=percent+0.1f;
-            }
-        });
+        SimpleDraweeView simpleDraweeView=(SimpleDraweeView)findViewById(R.id.fresco);
+
+        DraweeController draweeController= Fresco.newDraweeControllerBuilder()
+                .setUri(Uri.parse("http://wx2.sinaimg.cn/mw690/92e8647aly1ffpefmj9i7g20b406yx6q.gif"))
+                .setAutoPlayAnimations(true)
+                .build();
+        simpleDraweeView.setController(draweeController);
     }
 
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        swipeActivityHelper.onPostCreate();
-        swipeActivityHelper.setOnFinishActivity(new SwipeActivityLayout.OnFinishActivity() {
-            @Override
-            public void finishActivity() {
-                TempActivity.this.finish();
-                Log.d("apqx","finish");
-            }
-        });
-    }
-    //动态计算颜色的ARGB中的A,传入百分比，0表示全透明，1表示不透明
-    private int getBackColor(float percent){
-        int color= Color.argb(0xff,(int)(percent*0xff),0,0);
-        return color;
-    }
+
 }

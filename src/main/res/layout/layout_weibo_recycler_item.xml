@@ -17,10 +17,14 @@
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
-            android:scaleType="centerInside"
-            fresco:actualImageScaleType="centerCrop"
-            fresco:placeholderImage="@mipmap/pic"
-            fresco:placeholderImageScaleType="centerCrop"
+            fresco:actualImageScaleType="centerInside"
+            fresco:placeholderImage="@drawable/icon_preload"
+            fresco:placeholderImageScaleType="centerInside"
+            fresco:failureImage="@drawable/icon_loadfailed"
+            fresco:failureImageScaleType="centerInside"
+            fresco:progressBarImage="@drawable/icon_refreshing"
+            fresco:progressBarImageScaleType="centerInside"
+            fresco:progressBarAutoRotateInterval="1000"
             fresco:roundAsCircle="true"/>
 
         <TextView

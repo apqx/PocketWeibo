@@ -35,7 +35,7 @@ public class ParseJsonTools {
     static final String FEMALE="f";
     static final String USERNAME="screen_name";
     static final String USER_HEAD_PIC_URL="avatar_large";
-    static final String PROFILE_BG_URL="profile_image_url";
+    static final String PROFILE_BG_URL="cover_image_phone";
     static final String PROFILE_DESCRIPTION="description";
     static final String LOCATION="location";
     static final String FOLLOWING_COUNT="friends_count";
@@ -43,6 +43,7 @@ public class ParseJsonTools {
     static final String WEBSITE_URL="domain";
     static final String GENDER="gender";
     static final String ISFOLLOWING="following";
+    static final String USER_ID="id";
 
 
     static final String COMMENTS="text";
@@ -93,7 +94,13 @@ public class ParseJsonTools {
         try {
             builder.setUserName(jsonObject.getString(USERNAME));
             builder.setUserHeadPicURL(jsonObject.getString(USER_HEAD_PIC_URL));
-            builder.setProfileBGUrl(jsonObject.getString(PROFILE_BG_URL));
+
+            if (jsonObject.isNull(PROFILE_BG_URL)){
+                builder.setProfileBGUrl("http://ww2.sinaimg.cn//crop.0.0.640.640.640//a1d3feabjw1ecat8op0e1j20hs0hswgu.jpg");
+            }else {
+                builder.setProfileBGUrl(jsonObject.getString(PROFILE_BG_URL));
+
+            }
             builder.setProfileDescription(jsonObject.getString(PROFILE_DESCRIPTION));
             builder.setLocation(jsonObject.getString(LOCATION));
             builder.setFollowingCount(jsonObject.getString(FOLLOWING_COUNT));
@@ -102,6 +109,7 @@ public class ParseJsonTools {
             builder.setGender(jsonObject.getString(GENDER));
             builder.setLikeCount(jsonObject.getString(LIKE_COUNT));
             builder.setFollowed(jsonObject.getBoolean(ISFOLLOWING));
+            builder.setUserId(jsonObject.getString(USER_ID));
         }catch (JSONException e){
             e.printStackTrace();
         }

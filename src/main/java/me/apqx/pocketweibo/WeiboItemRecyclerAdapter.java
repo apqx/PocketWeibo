@@ -1,11 +1,19 @@
 package me.apqx.pocketweibo;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.drawable.Animatable;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,27 +21,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
 import com.facebook.drawee.controller.BaseControllerListener;
-import com.facebook.drawee.controller.ControllerListener;
-import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.image.ImageInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.apqx.pocketweibo.struct.PicUrls;
 import me.apqx.pocketweibo.struct.UserData;
 import me.apqx.pocketweibo.struct.WeiboItemData;
+import me.apqx.pocketweibo.tools.Tools;
 import me.apqx.pocketweibo.tools.ViewTools;
+import me.apqx.pocketweibo.tools.WebTools;
 import me.apqx.pocketweibo.view.LinkTextView;
+import me.relex.photodraweeview.PhotoDraweeView;
 
 /**
  * Created by apqx on 2017/5/4.
@@ -42,14 +53,16 @@ import me.apqx.pocketweibo.view.LinkTextView;
 
 public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecyclerAdapter.MyViewHolder> {
     private static final String TAG="WeiboItemAdapter";
-    public static final int WEIBO_MAINPAGE_LIST=0;
-    public static final int WEIBO_DETAIL=1;
-    public static final int WEIBO_USER_PAGE=2;
+    static final int WEIBO_MAINPAGE_LIST=0;
+    static final int WEIBO_DETAIL=1;
+    static final int WEIBO_USER_PAGE=2;
+    static final int ITEM_NORMAL=3;
+    static final int ITEM_FOOTER=4;
+
     private List<WeiboItemData> list;
     private int resource;
     private int weiboType;
     private PopupWindow popupWindow;
-    private MyViewHolder myViewHolder;
 
     private TextView textView_SavePost;
     private TextView textView_UnFollow;
@@ -57,30 +70,51 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
     private ImageButton btnUnFollow;
     private LinearLayout linearLayoutSavePost;
     private LinearLayout linearLayoutUnFollow;
+    private Handler handler;
+    private Activity activity;
 
     private MyOnClickListener onClickListener;
-    private Context context;
+    private OnRefreshDownListener refreshDownListener;
 
-    public WeiboItemRecyclerAdapter(List<WeiboItemData> list, int resource,int weiboType) {
+    public WeiboItemRecyclerAdapter(List<WeiboItemData> list, int resource,int weiboType,Activity activity) {
         super();
         this.list=list;
         this.resource=resource;
         this.weiboType=weiboType;
+        handler=new Handler();
+        this.activity=activity;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        context=parent.getContext();
-        View view= LayoutInflater.from(parent.getContext()).inflate(resource,parent,false);
-        myViewHolder=new MyViewHolder(view);
-        return myViewHolder;
+        MyViewHolder myViewHolder;
+        if (viewType==ITEM_NORMAL){
+            View view= LayoutInflater.from(parent.getContext()).inflate(resource,parent,false);
+            myViewHolder=new MyViewHolder(view,ITEM_NORMAL);
+            return myViewHolder;
+        }else {
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_weibo_footer,null);
+            myViewHolder=new MyViewHolder(view,ITEM_FOOTER);
+            return myViewHolder;
+        }
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
+        if (position==getItemCount()-1){
+            //说明是Footer
+            if (refreshDownListener!=null){
+                refreshDownListener.refreshDown();
+                Log.d(TAG,"Refresh Down");
+            }
+            if (weiboType==WEIBO_DETAIL||weiboType==WEIBO_USER_PAGE){
+                holder.progressBar.setVisibility(View.GONE);
+            }
+            return;
+        }
+
         WeiboItemData weiboItemData=list.get(position);
         UserData userData=weiboItemData.getWeiboUserData();
-        holder.draweeView_head.setImageResource(R.mipmap.pic);
         holder.textView_time.setText(weiboItemData.getCreateTime());
         holder.textView_device.setText(weiboItemData.getDevice());
         holder.textView_name.setText(userData.getUserName());
@@ -93,6 +127,9 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             holder.textView_commentCount.setText(weiboItemData.getCommentCount());
         }
 
+        Log.d(TAG,userData.getUserName()+" pic head url "+userData.getUserHeadPicURL());
+        Log.d(TAG,userData.getUserName()+" pic bg url "+userData.getProfileBGUrl());
+
         //把微博ID保存在View里,这样当点击列表Item的时候可以明确的知道点击的是哪个微博
         holder.textView_content.setTag(weiboItemData.getWeiboId());
         holder.btnExpand.setTag(weiboItemData.getWeiboId());
@@ -104,6 +141,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             holder.gridLayout_pic.setVisibility(View.VISIBLE);
             holder.gridLayout_pic.setTag(weiboItemData.getWeiboId());
             Log.d(TAG,userData.getUserName()+" has pic nem = "+weiboItemData.getPicUrls().getImageCount());
+            //问题是这里获得的width老是0,说明到这里还没有加载完成
             setGridImage(weiboItemData.getPicUrls(),holder.gridLayout_pic,weiboItemData.getWeiboId());
         }else {
             holder.gridLayout_pic.setVisibility(View.GONE);
@@ -141,7 +179,15 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list.size()+1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position==getItemCount()-1){
+            return ITEM_FOOTER;
+        }
+        return ITEM_NORMAL;
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder{
@@ -159,38 +205,47 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         private TextView textView_rePostCount;
         private RelativeLayout relativeLayout_reTwitterMain;
         private ImageButton btnExpand;
-        public MyViewHolder(View itemView) {
-            super(itemView);
-            draweeView_head =(SimpleDraweeView)itemView.findViewById(R.id.simpleDraweeView_main_item_head);
-            gridLayout_pic =(GridLayout) itemView.findViewById(R.id.gridLayout_main_item_image);
-            gridLayout_reTwitter_pic =(GridLayout) itemView.findViewById(R.id.gridLayout_main_item_reTwitter_image);
-            textView_name=(TextView)itemView.findViewById(R.id.textView_main_item_name);
-            textView_time=(TextView)itemView.findViewById(R.id.textView_main_item_time);
-            textView_device=(TextView)itemView.findViewById(R.id.textView_main_item_device);
-            textView_content=(TextView)itemView.findViewById(R.id.textView_main_item_content);
-            textView_reTwitter_content=(TextView)itemView.findViewById(R.id.textView_main_item_content_reTwitter);
-            textView_reTwitter_state=(TextView)itemView.findViewById(R.id.textView_main_item_reTwitter_state);
-            textView_likeCount=(TextView)itemView.findViewById(R.id.textView_main_item_likeCount);
-            textView_commentCount=(TextView)itemView.findViewById(R.id.textView_main_item_commentCount);
-            textView_rePostCount=(TextView)itemView.findViewById(R.id.textView_main_item_rePostCount);
-            relativeLayout_reTwitterMain=(RelativeLayout)itemView.findViewById(R.id.relativeLayout_main_item_reTwitter);
-            btnExpand=(ImageButton)itemView.findViewById(R.id.btn_main_item_expand);
-            btnSavePost=(ImageButton)itemView.findViewById(R.id.imageButton_expand_addToFavorite);
-            btnUnFollow=(ImageButton)itemView.findViewById(R.id.imageButton_expand_follow);
-            linearLayoutSavePost=(LinearLayout)itemView.findViewById(R.id.linearLayout_savePost);
-            linearLayoutUnFollow=(LinearLayout)itemView.findViewById(R.id.linearLayout_unFollow);
-            textView_SavePost=(TextView)itemView.findViewById(R.id.textView_expand_addToFavorite);
-            textView_UnFollow=(TextView)itemView.findViewById(R.id.textView_expand_follow);
+        private int itemType;
 
-            onClickListener=new MyOnClickListener();
-            btnExpand.setOnClickListener(onClickListener);
-            textView_content.setOnClickListener(onClickListener);
-            textView_reTwitter_content.setOnClickListener(onClickListener);
-            textView_name.setOnClickListener(onClickListener);
-            draweeView_head.setOnClickListener(onClickListener);
+        private ProgressBar progressBar;
+        public MyViewHolder(View itemView,int type) {
+            super(itemView);
+            this.itemType=type;
+            if (type==ITEM_NORMAL){
+                draweeView_head =(SimpleDraweeView)itemView.findViewById(R.id.simpleDraweeView_main_item_head);
+                gridLayout_pic =(GridLayout) itemView.findViewById(R.id.gridLayout_main_item_image);
+                gridLayout_reTwitter_pic =(GridLayout) itemView.findViewById(R.id.gridLayout_main_item_reTwitter_image);
+                textView_name=(TextView)itemView.findViewById(R.id.textView_main_item_name);
+                textView_time=(TextView)itemView.findViewById(R.id.textView_main_item_time);
+                textView_device=(TextView)itemView.findViewById(R.id.textView_main_item_device);
+                textView_content=(TextView)itemView.findViewById(R.id.textView_main_item_content);
+                textView_reTwitter_content=(TextView)itemView.findViewById(R.id.textView_main_item_content_reTwitter);
+                textView_reTwitter_state=(TextView)itemView.findViewById(R.id.textView_main_item_reTwitter_state);
+                textView_likeCount=(TextView)itemView.findViewById(R.id.textView_main_item_likeCount);
+                textView_commentCount=(TextView)itemView.findViewById(R.id.textView_main_item_commentCount);
+                textView_rePostCount=(TextView)itemView.findViewById(R.id.textView_main_item_rePostCount);
+                relativeLayout_reTwitterMain=(RelativeLayout)itemView.findViewById(R.id.relativeLayout_main_item_reTwitter);
+                btnExpand=(ImageButton)itemView.findViewById(R.id.btn_main_item_expand);
+                btnSavePost=(ImageButton)itemView.findViewById(R.id.imageButton_expand_addToFavorite);
+                btnUnFollow=(ImageButton)itemView.findViewById(R.id.imageButton_expand_follow);
+                linearLayoutSavePost=(LinearLayout)itemView.findViewById(R.id.linearLayout_savePost);
+                linearLayoutUnFollow=(LinearLayout)itemView.findViewById(R.id.linearLayout_unFollow);
+                textView_SavePost=(TextView)itemView.findViewById(R.id.textView_expand_addToFavorite);
+                textView_UnFollow=(TextView)itemView.findViewById(R.id.textView_expand_follow);
+
+                onClickListener=new MyOnClickListener();
+                btnExpand.setOnClickListener(onClickListener);
+                textView_content.setOnClickListener(onClickListener);
+                textView_reTwitter_content.setOnClickListener(onClickListener);
+                textView_name.setOnClickListener(onClickListener);
+                draweeView_head.setOnClickListener(onClickListener);
+            }else {
+                //说明是Footer，这里加载另一个布局
+                progressBar=(ProgressBar)itemView.findViewById(R.id.progressbar);
+            }
         }
     }
-    //唐初窗口显示对微博的操作选项，收藏，关注
+    //弹出窗口显示对微博的操作选项，收藏，关注
     private void showWeiboItemExpandWindow(final View view,String weiboId){
         View expandView=LayoutInflater.from(view.getContext()).inflate(R.layout.layout_weibo_expand,null);
         btnSavePost=(ImageButton)expandView.findViewById(R.id.imageButton_expand_addToFavorite);
@@ -201,7 +256,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         textView_UnFollow=(TextView)expandView.findViewById(R.id.textView_expand_follow);
         WeiboItemData weiboItemData=MainPageActivity.getWeiboItem(weiboId);
         if (weiboItemData==null){
-            Toast.makeText(view.getContext(),"Error",Toast.LENGTH_SHORT).show();
+            Tools.showToast("Error");
             return;
         }
         UserData userData=weiboItemData.getWeiboUserData();
@@ -242,21 +297,25 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
 
     }
     //微博中有图片，根据图片的多少自动调整GridLayout的布局并动态加载图片
-    //要总结GridLayout动态加载View的用法，SimpleDraweeView的用法
     private void setGridImage(PicUrls picUrls, GridLayout gridLayout,String weiboId){
         gridLayout.removeAllViews();
         int count=picUrls.getImageCount();
+        int width;
+        int screenWidthDp=activity.getResources().getConfiguration().screenWidthDp;
+
+        if (isPad()||activity.getResources().getConfiguration().orientation== Configuration.ORIENTATION_LANDSCAPE){
+            width=ViewTools.dpToPx(activity,screenWidthDp/2-20);
+        }else {
+            width=ViewTools.dpToPx(activity,screenWidthDp-20);
+        }
         int imageWidth;
-        //如何正确获取GridView的宽度
-        View parent=(View)gridLayout.getParent();
-        int parentWidth=parent.getMeasuredWidth()-parent.getPaddingLeft()-parent.getPaddingRight();
         int margin=5;
-        Log.d(TAG,"GridLayout width = "+parentWidth);
+//        Log.d(TAG,"GridLayout width = "+width);
         //最多支持9张图片
         if (count<=3){
-            imageWidth=parentWidth/count-2*margin;
+            imageWidth=width/count-2*margin;
         }else {
-            imageWidth=parentWidth/3-2*margin;
+            imageWidth=width/3-2*margin;
         }
         for (int i=0;i<count;i++){
             GridLayout.Spec row;
@@ -269,7 +328,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                 row=GridLayout.spec(i/3);
                 col=GridLayout.spec(i%3);
             }
-            SimpleDraweeView simpleDraweeView=new SimpleDraweeView(gridLayout.getContext());
+            SimpleDraweeView simpleDraweeView=(SimpleDraweeView)LayoutInflater.from(activity).inflate(R.layout.layout_item_fresco_grid,null);
             GridLayout.LayoutParams layoutParams=new GridLayout.LayoutParams(row,col);
             //设置每个子View的尺寸
             layoutParams.width=imageWidth;
@@ -279,15 +338,39 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
 
             //这里进入了子线程下载图片
             //遗留图片加载错位问题需要解决
+
             simpleDraweeView.setOnClickListener(new GridItemClickListener(picUrls,i));
+            DraweeController draweeController;
+            String urlString=picUrls.getSmallImageUrlAt(i);
             if (count<3){
-                simpleDraweeView.setImageURI(picUrls.getOriginalImageUrlAt(i));
+                draweeController=Fresco.newDraweeControllerBuilder()
+                        .setUri(picUrls.getMiddleImageUrlAt(i))
+                        .setAutoPlayAnimations(true)
+                        .build();
             }else {
-                simpleDraweeView.setImageURI(picUrls.getMiddleImageUrlAt(i));
+                if (urlString.substring(urlString.length()-3).equals("gif")){
+                    draweeController=Fresco.newDraweeControllerBuilder()
+                            .setUri(picUrls.getSmallImageUrlAt(i))
+                            .setAutoPlayAnimations(true)
+                            .build();
+                }else{
+                    draweeController=Fresco.newDraweeControllerBuilder()
+                            .setUri(picUrls.getMiddleImageUrlAt(i))
+                            .setAutoPlayAnimations(true)
+                            .build();
+
+                }
 
             }
+            simpleDraweeView.setController(draweeController);
             gridLayout.addView(simpleDraweeView,layoutParams);
         }
+    }
+    //判断是不是平板电脑
+    private boolean isPad() {
+        return (activity.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
     private class MyOnClickListener implements View.OnClickListener{
         String weiboId;
@@ -338,6 +421,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             Log.d(TAG,"weibo id = "+weiboId+" clicked");
         }
     }
+    //按钮点击展开
     private class OnExpandClickListener implements View.OnClickListener{
         private WeiboItemData weiboItemData;
         OnExpandClickListener(WeiboItemData weiboItemData){
@@ -350,34 +434,35 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                     //因为点击此之前一定点击btn_main_item_expand，所以可以获得微博ID
                     //根据本地内存数据判断当前状态，联网请求改变状态，如果成功，则同时改变本地保存的状态
                     if (weiboItemData==null){
-                        Toast.makeText(v.getContext(),"Error",Toast.LENGTH_SHORT).show();
+                        Tools.showToast("Error");
                         break;
                     }
                     if (weiboItemData.isFavorited()){
                         //如果已经被收藏了
-                        Toast.makeText(v.getContext(), R.string.remove_from_favorite,Toast.LENGTH_SHORT).show();
+                        Tools.showToast(R.string.remove_from_favorite);
                     }else {
                         //如果没有被收藏
-                        Toast.makeText(v.getContext(), R.string.add_to_favorite,Toast.LENGTH_SHORT).show();
+                        Tools.showToast(R.string.add_to_favorite);
                     }
                     break;
                 case R.id.linearLayout_unFollow:
                     if (weiboItemData==null){
-                        Toast.makeText(v.getContext(),"Error",Toast.LENGTH_SHORT).show();
+                        Tools.showToast("Error");
                         break;
                     }
                     if (weiboItemData.getWeiboUserData().isFollowed()){
                         //如果已经关注了此人
-                        Toast.makeText(v.getContext(), R.string.unfollow_success,Toast.LENGTH_SHORT).show();
+                        Tools.showToast(R.string.unfollow_success);
                     }else {
                         //如果没有关注此人
-                        Toast.makeText(v.getContext(), R.string.follow_success,Toast.LENGTH_SHORT).show();
+                        Tools.showToast(R.string.follow_success);
                     }
                     break;
 
             }
         }
     }
+    //图片网格点击监听器
     private class GridItemClickListener implements View.OnClickListener{
         private PicUrls picUrls;
         private int index;
@@ -388,29 +473,113 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         @Override
         public void onClick(View v) {
             Log.d(TAG,"Grid click "+index);
-            View view=LayoutInflater.from(context).inflate(R.layout.layout_grid_pics_expand,null);
-            ViewPager viewPager=(ViewPager)view.findViewById(R.id.viewPage_grid_pic_expand);
+            View view=LayoutInflater.from(activity).inflate(R.layout.layout_grid_pics_expand,null);
+            final ViewPager viewPager=(ViewPager)view.findViewById(R.id.viewPage_grid_pic_expand);
+            List<View> list=new ArrayList<View>();
+            for (int i=0;i<picUrls.getImageCount();i++){
+                final PhotoDraweeView mPhotoDraweeView=(PhotoDraweeView) LayoutInflater.from(activity).inflate(R.layout.layout_item_fresco_viewpage,null);
+                PipelineDraweeControllerBuilder controller = Fresco.newDraweeControllerBuilder();
+                controller.setUri(picUrls.getOriginalImageUrlAt(i));
+                controller.setAutoPlayAnimations(true);
+                controller.setOldController(mPhotoDraweeView.getController());
+                controller.setControllerListener(new BaseControllerListener<ImageInfo>() {
+                    @Override
+                    public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
+                        super.onFinalImageSet(id, imageInfo, animatable);
+                        if (imageInfo == null || mPhotoDraweeView == null) {
+                            return;
+                        }
+                        mPhotoDraweeView.update(imageInfo.getWidth(), imageInfo.getHeight());
+                    }
+                });
+                mPhotoDraweeView.setController(controller.build());
+                list.add(mPhotoDraweeView);
+                mPhotoDraweeView.setOnLongClickListener(new View.OnLongClickListener() {
 
-            AlertDialog.Builder builder=new AlertDialog.Builder(context);
+                    @Override
+                    public boolean onLongClick(View v) {
+                        String urlString=picUrls.getOriginalImageUrlAt(viewPager.getCurrentItem());
+                        //在这里判断是否有存储权限，有的话直接下载当前图片，否则申请权限，回调方法确认授权后，开始下载
+                        if (ContextCompat.checkSelfPermission(activity,Manifest.permission.WRITE_EXTERNAL_STORAGE)==PackageManager.PERMISSION_GRANTED){
+                            Log.d(TAG,"has permission");
+                            Constant.urlList.add(urlString);
+                            WebTools.startDownLoadPics(handler);
+                        }else {
+                            Log.d(TAG,"no permission");
+                            Constant.urlList.add(urlString);
+                            ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+                        }
+                        return false;
+                    }
+                });
+
+            }
+            PagerAdapter pagerAdapter=new GridPicPageAdapter(list);
+            viewPager.setAdapter(pagerAdapter);
+            viewPager.setCurrentItem(index);
+            AlertDialog.Builder builder=new AlertDialog.Builder(activity);
             builder.setView(view);
-            AlertDialog alertDialog=builder.create();
+            final AlertDialog alertDialog=builder.create();
             alertDialog.show();
+            alertDialog.setCanceledOnTouchOutside(true);
+            viewPager.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.cancel();
+                }
+            });
+
 
         }
     }
     private class GridPicPageAdapter extends PagerAdapter{
-        public GridPicPageAdapter() {
+        private List<View> list;
+        public GridPicPageAdapter(List<View> list) {
             super();
+            this.list=list;
         }
 
         @Override
         public int getCount() {
-            return 0;
+            return list.size();
         }
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
-            return false;
+            return view==object;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            View view=list.get(position);
+            container.addView(view);
+            return view;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            View view=list.get(position);
+            container.removeView(view);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return super.getPageTitle(position);
         }
     }
+    private boolean checktPermission(String permission){
+        return ContextCompat.checkSelfPermission(activity,permission)== PackageManager.PERMISSION_GRANTED;
+    }
+
+    //对外暴露方法，当列表快要接近底部时刷新数据
+    public void setOnRefreshDownListener(OnRefreshDownListener refreshDownListener){
+        this.refreshDownListener=refreshDownListener;
+    }
+
+    interface OnRefreshDownListener{
+        void refreshDown();
+
+    }
+
+
 }

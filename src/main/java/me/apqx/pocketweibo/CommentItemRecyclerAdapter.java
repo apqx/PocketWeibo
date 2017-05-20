@@ -8,6 +8,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+
 import java.util.List;
 
 import me.apqx.pocketweibo.struct.CommentData;
@@ -38,7 +40,7 @@ public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItem
     public void onBindViewHolder(ViewHolder holder, int position) {
         CommentData commentData=list.get(position);
         UserData userData=commentData.getUserData();
-        holder.imageView_head.setImageResource(R.mipmap.pic);
+        holder.imageView_head.setImageURI(userData.getUserHeadPicURL());
         holder.textView_username.setText(userData.getUserName());
         holder.textView_commentTime.setText(commentData.getCommentTime());
         holder.textView_device.setText(commentData.getDevice());
@@ -51,7 +53,7 @@ public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItem
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        private ImageView imageView_head;
+        private SimpleDraweeView imageView_head;
         private TextView textView_username;
         private TextView textView_commentTime;
         private TextView textView_device;
@@ -59,7 +61,7 @@ public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItem
         private ImageButton btn_expand;
         public ViewHolder(View itemView) {
             super(itemView);
-            imageView_head=(ImageView)itemView.findViewById(R.id.imageView_comment_item_head);
+            imageView_head=(SimpleDraweeView)itemView.findViewById(R.id.imageView_comment_item_head);
             textView_username=(TextView)itemView.findViewById(R.id.textView_comment_item_name);
             textView_commentTime=(TextView)itemView.findViewById(R.id.textView_comment_item_time);
             textView_device=(TextView)itemView.findViewById(R.id.textView_comment_item_device);

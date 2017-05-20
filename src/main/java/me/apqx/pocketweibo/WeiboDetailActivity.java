@@ -1,9 +1,11 @@
 package me.apqx.pocketweibo;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 
 import org.json.JSONArray;
@@ -70,7 +71,7 @@ public class WeiboDetailActivity extends AppCompatActivity {
         radioLikes=(RadioButton)findViewById(R.id.radio_weibo_detail_like);
         radioComment=(RadioButton)findViewById(R.id.radio_weibo_detail_comment);
         radioRepost=(RadioButton)findViewById(R.id.radio_weibo_detail_repost);
-        exec=MyThreadPool.getThreadPool();
+        exec= AppThreadPool.getThreadPool();
 
         swipeActivityHelper=new SwipeActivityHelper(this);
         swipeActivityHelper.onActivityCreate();
@@ -90,7 +91,7 @@ public class WeiboDetailActivity extends AppCompatActivity {
 
         //加载微博详细信息
         listWeiboDetail=new ArrayList<WeiboItemData>(1);
-        weiboItemRecyclerAdapter=new WeiboItemRecyclerAdapter(listWeiboDetail,R.layout.layout_weibo_recycler_item,WeiboItemRecyclerAdapter.WEIBO_DETAIL);
+        weiboItemRecyclerAdapter=new WeiboItemRecyclerAdapter(listWeiboDetail,R.layout.layout_weibo_recycler_item,WeiboItemRecyclerAdapter.WEIBO_DETAIL,this);
         RecyclerView.LayoutManager weboItemLayoutManager=new LinearLayoutManager(this);
         recyclerViewWeiboDetail.setLayoutManager(weboItemLayoutManager);
         listWeiboDetail.add(weiboItemData);
@@ -102,7 +103,7 @@ public class WeiboDetailActivity extends AppCompatActivity {
         commentItemRecyclerAdapter=new CommentItemRecyclerAdapter(R.layout.layout_comment_item,listComments);
         RecyclerView.LayoutManager commentLayoutManager=new LinearLayoutManager(this);
         recyclerViewComment.setLayoutManager(commentLayoutManager);
-        recyclerViewComment.addItemDecoration(new MyItemDecor());
+        recyclerViewComment.addItemDecoration(new RecyclerItemDecor());
         recyclerViewComment.setAdapter(commentItemRecyclerAdapter);
         handler=new DataHandler();
         exec.execute(new Runnable() {
@@ -152,6 +153,19 @@ public class WeiboDetailActivity extends AppCompatActivity {
             default:break;
         }
         return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode==0){
+            if (grantResults.length>0&&grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                //说明申请权限成功
+                WebTools.startDownLoadPics(handler);
+            }else {
+                Tools.showToast(getString(R.string.permission_denied));
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private class DataHandler extends Handler{

@@ -61,7 +61,6 @@ public class SwipeActivityLayout extends LinearLayout {
 
         ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
         ViewGroup decorChild = (ViewGroup) decorView.getChildAt(0);
-
         decorView.removeView(decorChild);
         addView(decorChild);
         decorView.addView(this);
@@ -132,11 +131,11 @@ public class SwipeActivityLayout extends LinearLayout {
                 if (Math.abs(parent.getScrollX())>width/2||shouldFinishActivity){
                     //滑动到右边并结束Activity
                     scroller.startScroll(parent.getScrollX(),0,-width-parent.getScrollX(),0,500);
-                    Log.d(TAG,"onTouchEvent actionUp 2");
+//                    Log.d(TAG,"onTouchEvent actionUp 2");
                 }else {
                     //滑动回原点
                     scroller.startScroll(parent.getScrollX(),0,-parent.getScrollX(),0,500);
-                    Log.d(TAG,"onTouchEvent actionUp 1 "+parent.getScrollX());
+//                    Log.d(TAG,"onTouchEvent actionUp 1 "+parent.getScrollX());
                 }
                 invalidate();
                 shouldFinishActivity=false;

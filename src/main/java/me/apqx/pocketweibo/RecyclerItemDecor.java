@@ -14,7 +14,7 @@ import me.apqx.pocketweibo.tools.ViewTools;
  * 用来给RecyclerView的item之间绘制分割线
  */
 
-public class MyItemDecor extends RecyclerView.ItemDecoration{
+public class RecyclerItemDecor extends RecyclerView.ItemDecoration{
     private int strokeWidth;
     @Override
     public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
