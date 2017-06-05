@@ -73,6 +73,10 @@ public class WeiboItemData {
         return commentCount;
     }
 
+    public void setCommentCount(String commentCount) {
+        this.commentCount = commentCount;
+    }
+
     public String getWeiboId() {
         return weiboId;
     }

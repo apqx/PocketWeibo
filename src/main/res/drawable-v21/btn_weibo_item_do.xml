@@ -2,10 +2,8 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="@color/color_ripple_grey">
     <item>
-        <shape
-            android:shape="oval">
+        <shape>
             <solid android:color="?attr/weiboBgColor"/>
         </shape>
-
     </item>
 </ripple>

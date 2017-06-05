@@ -2,4 +2,11 @@
 <resources>
     <attr name="nav_header_bg_color" format="color"/>
     <attr name="nav_header_name_color" format="color"/>
+    <attr name="weiboBgColor" format="color"/>
+    <attr name="reTwitterBgColor" format="color"/>
+    <attr name="weiboUserNameColor" format="color"/>
+    <attr name="weiboTextColor" format="color"/>
+    <attr name="weiboSecondTextColor" format="color"/>
+    <attr name="secondBackground" format="color"/>
+    <attr name="userbg" format="reference"/>
 </resources>

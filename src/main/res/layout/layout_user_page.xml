@@ -14,12 +14,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:contentScrim="@color/light.colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            android:background="?attr/weiboBgColor">
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_collapseMode="parallax"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="10dp"
+                android:background="?attr/weiboBgColor">
                 <com.facebook.drawee.view.SimpleDraweeView
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
@@ -53,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/textView_user_page_name"
                     tools:text="张晨初艺术空间"
+                    android:textColor="?attr/weiboUserNameColor"
                     android:layout_alignLeft="@id/imageView_user_page_head"
                     android:layout_below="@id/imageView_user_page_head"
                     android:layout_marginTop="5dp"
@@ -74,7 +77,8 @@
                     android:layout_below="@id/textView_user_page_name"
                     android:layout_alignLeft="@id/textView_user_page_name"
                     android:layout_marginTop="10dp"
-                    tools:text="上海 黄浦区" />
+                    tools:text="上海 黄浦区"
+                    android:textColor="?attr/weiboSecondTextColor"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -83,7 +87,8 @@
                     android:layout_below="@id/textView_user_page_location"
                     android:layout_alignLeft="@id/textView_user_page_location"
                     android:layout_marginTop="20dp"
-                    android:text="Followers 5334"/>
+                    android:text="Followers 5334"
+                    android:textColor="?attr/weiboSecondTextColor"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -91,7 +96,8 @@
                     android:layout_alignTop="@id/textView_user_page_followers"
                     android:layout_toRightOf="@id/textView_user_page_followers"
                     android:layout_marginLeft="10dp"
-                    tools:text="Following 334"/>
+                    tools:text="Following 334"
+                    android:textColor="?attr/weiboSecondTextColor"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -100,23 +106,28 @@
                     android:layout_alignLeft="@id/textView_user_page_location"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="20dp"
-                    tools:text="张晨初：油画家，上海师大美院教授，微博签约自媒体，上海师范大学美术学院教授"/>
+                    tools:text="张晨初：油画家，上海师大美院教授，微博签约自媒体，上海师范大学美术学院教授"
+                    android:textColor="?attr/weiboSecondTextColor"/>
             </RelativeLayout>
+
             <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar_userData"
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/actionBarSize"
-                android:id="@+id/toolbar_userData"
-                app:title=" "
-                app:layout_collapseMode="pin">
+                app:layout_collapseMode="pin"
+                android:background="?attr/colorPrimary"
+                app:title=" ">
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
+
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView_user_page_weibo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/recyclerView_user_page_weibo"
         android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:background="?attr/weiboBgColor"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </android.support.design.widget.CoordinatorLayout>

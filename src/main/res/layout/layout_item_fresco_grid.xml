@@ -6,8 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     fresco:actualImageScaleType="centerCrop"
-    fresco:placeholderImage="@drawable/icon_preload"
-    fresco:placeholderImageScaleType="fitCenter"
     fresco:failureImage="@drawable/icon_loadfailed"
     fresco:failureImageScaleType="centerInside"
     fresco:progressBarImage="@drawable/icon_refreshing"

@@ -1,27 +1,31 @@
 package me.apqx.pocketweibo.view;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.apqx.pocketweibo.R;
+import me.apqx.pocketweibo.UserDataActivity;
+import me.apqx.pocketweibo.struct.UserData;
 import me.apqx.pocketweibo.tools.Tools;
+
+import static android.content.Intent.ACTION_VIEW;
 
 /**
  * Created by apqx on 2017/5/5.
@@ -58,25 +62,25 @@ public class LinkTextView extends AppCompatTextView {
             text=matcherEndLink.replaceAll(string);
             Log.d(TAG,text.toString());
             spannableString=new SpannableString(text);
-            spannableString.setSpan(new MyClickableSpan(url,MyClickableSpan.TYPE_END_LINK),start,start+string.length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannableString.setSpan(new MyClickableSpan(url, MyClickableSpan.TYPE_END_LINK),start,start+string.length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
 
         }
         //识别内容中的链接 http:\/\/m.weibo.cn\/5044281310\/4103430798429973
-        Matcher matcherInnerLink=Pattern.compile("(http[^\\s,，。?（）()\\n]+)[\\s（）()，。,？\\n]*").matcher(spannableString);
+        Matcher matcherInnerLink=Pattern.compile("(http://([\\w\\d]*\\.*[\\w\\d]*/*)+)[\\s（）()，。,？\\n]*").matcher(spannableString);
         while (matcherInnerLink.find()){
             Log.d(TAG,"inner link "+matcherInnerLink.group(1));
-            spannableString.setSpan(new MyClickableSpan(matcherInnerLink.group(1),MyClickableSpan.TYPE_INNER_LINK),matcherInnerLink.start(),matcherInnerLink.start()+matcherInnerLink.group(1).length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannableString.setSpan(new MyClickableSpan(matcherInnerLink.group(1), MyClickableSpan.TYPE_INNER_LINK),matcherInnerLink.start(),matcherInnerLink.start()+matcherInnerLink.group(1).length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         }
         //识别用户名 @username:你好    @username 你好    @username,你好
-        Matcher matcherUsername=Pattern.compile("@([^:\\s,.，。?]+)[:\\s,.，。?]").matcher(spannableString);
+        Matcher matcherUsername=Pattern.compile("@([^@:\\s,.，。?\\n]+)[:\\s,.，。?\\n]*").matcher(spannableString);
         while (matcherUsername.find()){
-            spannableString.setSpan(new MyClickableSpan(matcherUsername.group(1),MyClickableSpan.TYPE_USERNAME),matcherUsername.start(1)-1,matcherUsername.start(1)+matcherUsername.group(1).length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannableString.setSpan(new MyClickableSpan(matcherUsername.group(1), MyClickableSpan.TYPE_USERNAME),matcherUsername.start(1)-1,matcherUsername.start(1)+matcherUsername.group(1).length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             Log.d(TAG,"username "+matcherUsername.group(1));
         }
         //识别话题 #topic#
         Matcher matcherTopic=Pattern.compile("#(\\w+)#").matcher(spannableString);
         while (matcherTopic.find()){
-            spannableString.setSpan(new MyClickableSpan(matcherTopic.group(1),MyClickableSpan.TYPE_TOPIC),matcherTopic.start(1)-1,matcherTopic.start(1)+matcherTopic.group(1).length()+1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannableString.setSpan(new MyClickableSpan(matcherTopic.group(1), MyClickableSpan.TYPE_TOPIC),matcherTopic.start(1)-1,matcherTopic.start(1)+matcherTopic.group(1).length()+1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             Log.d(TAG,"topic "+matcherTopic.group(1));
         }
         setMovementMethod(LinkMovementMethod.getInstance());
@@ -87,11 +91,11 @@ public class LinkTextView extends AppCompatTextView {
         private static final int TYPE_TOPIC=1;
         private static final int TYPE_END_LINK=2;
         private static final int TYPE_INNER_LINK=3;
-        private String userName;
+        private String string;
         private int type;
-        private MyClickableSpan(String string,int type) {
+        private MyClickableSpan(String string, int type) {
             super();
-            this.userName=string;
+            this.string=string;
             this.type=type;
         }
 
@@ -104,8 +108,27 @@ public class LinkTextView extends AppCompatTextView {
 
         @Override
         public void onClick(View widget) {
+            Intent intent;
+            switch (type){
+                case TYPE_USERNAME:
+                    intent=new Intent(getContext(), UserDataActivity.class);
+                    intent.putExtra("apqx",string);
+                    getContext().startActivity(intent);
+                    break;
+                case TYPE_INNER_LINK:
+                    //打开浏览器
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    builder.setToolbarColor(Color.parseColor("#1ABC9C"));
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.launchUrl(getContext(), Uri.parse(string));
+                    break;
+                case TYPE_END_LINK:
+                    break;
+                case TYPE_TOPIC:
+                    break;
+            }
             //点击链接后的行为
-            Tools.showToast(userName+" "+type);
+//            Tools.showToast(string+" "+type);
             shouldInterruptClick=true;
         }
     }

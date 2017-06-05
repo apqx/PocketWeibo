@@ -14,31 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="?android:attr/actionBarSize"
             android:id="@+id/toolbar_WeiboDetail"
-            android:background="@color/light.colorPrimary"
+            android:background="?attr/colorPrimary"
             app:title=" ">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:id="@+id/linearLayout_weibo_detail_user"
-                android:visibility="gone">
-                <me.apqx.pocketweibo.view.CircleImageView
-                    android:layout_width="?android:attr/actionBarSize"
-                    android:layout_height="?android:attr/actionBarSize"
-                    android:id="@+id/imageView_weibo_detail_user_pic"
-                    android:padding="10dp"
-                    android:src="@mipmap/pic"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/textView_weibo_detail_user_name"
-                    tools:text="使徒子"
-                    android:maxLines="1"
-                    android:textColor="@android:color/white"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
-            </LinearLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
@@ -48,11 +25,11 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_white">
+        android:background="?attr/weiboBgColor">
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|enterAlways"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
             android:id="@+id/recyclerView_weibo_Detail"/>
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
@@ -104,6 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/recyclerView_weibo_detail_comment"
+        android:background="?attr/weiboBgColor"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     </android.support.v7.widget.RecyclerView>

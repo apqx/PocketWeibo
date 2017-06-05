@@ -7,8 +7,11 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/user_bg"
-        android:scaleType="centerCrop"/>
+        android:src="?attr/userbg"
+        android:scaleType="centerCrop"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
     <com.facebook.drawee.view.SimpleDraweeView
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -22,7 +25,9 @@
         fresco:progressBarImage="@drawable/icon_refreshing"
         fresco:progressBarImageScaleType="centerInside"
         fresco:progressBarAutoRotateInterval="1000"
-        fresco:roundAsCircle="true" />
+        fresco:roundAsCircle="true"
+        fresco:roundingBorderWidth="2dp"
+        fresco:roundingBorderColor="@color/color_grey_black" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="20dp"

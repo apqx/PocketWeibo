@@ -22,7 +22,7 @@ public class ParseJsonTools {
     static final String DEVICE="source";
     static final String CONTENT="text";
     static final String CREATE_TIME="created_at";
-    static final String LIKE_COUNT="favourites_count";
+    static final String LIKE_COUNT="attitudes_count";
     static final String ISFAVORITED="favorited";
     static final String REPOST_COUNT="reposts_count";
     static final String COMMENT_COUNT="comments_count";
@@ -59,7 +59,7 @@ public class ParseJsonTools {
             builder.setContent(jsonObject.getString(CONTENT));
             builder.setRePostCount(jsonObject.getString(REPOST_COUNT));
             builder.setCommentCount(jsonObject.getString(COMMENT_COUNT));
-            builder.setLikeCount(jsonObject.getJSONObject(USER).getString(LIKE_COUNT));
+            builder.setLikeCount(jsonObject.getString(LIKE_COUNT));
             builder.setWeiboId(jsonObject.getString(WEIBO_ID));
             builder.setFavorited(jsonObject.getBoolean(ISFAVORITED));
             builder.setWeiboUserData(getUserDataFromJson(jsonObject.getJSONObject(USER)));
@@ -107,7 +107,6 @@ public class ParseJsonTools {
             builder.setFollowerCount(jsonObject.getString(FOLLOWERS_COUNT));
             builder.setWebsiteUrl(jsonObject.getString(WEBSITE_URL));
             builder.setGender(jsonObject.getString(GENDER));
-            builder.setLikeCount(jsonObject.getString(LIKE_COUNT));
             builder.setFollowed(jsonObject.getBoolean(ISFOLLOWING));
             builder.setUserId(jsonObject.getString(USER_ID));
         }catch (JSONException e){

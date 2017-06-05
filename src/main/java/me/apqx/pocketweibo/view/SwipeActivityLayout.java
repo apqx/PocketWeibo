@@ -62,6 +62,7 @@ public class SwipeActivityLayout extends LinearLayout {
         ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
         ViewGroup decorChild = (ViewGroup) decorView.getChildAt(0);
         decorView.removeView(decorChild);
+
         addView(decorChild);
         decorView.addView(this);
     }
@@ -85,7 +86,7 @@ public class SwipeActivityLayout extends LinearLayout {
             case MotionEvent.ACTION_MOVE:
                 offsetX=x-lastX;
                 offsetY=y-lastY;
-                if (Math.abs(offsetX)>Math.abs(offsetY)){
+                if (Math.abs(offsetX)>Math.abs(offsetY)*2){
                     result=true;
                 }
                 lastX=x;

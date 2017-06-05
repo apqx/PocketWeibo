@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,6 +41,7 @@ public class WebTools {
         BufferedReader bufferedReader=null;
         StringBuilder stringBuilder=new StringBuilder();
         try {
+            Log.d(TAG,"GET web String url = "+stringUrl);
             url=new URL(stringUrl);
             httpURLConnection=(HttpURLConnection)url.openConnection();
             bufferedReader=new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
@@ -47,7 +49,6 @@ public class WebTools {
             while ((string=bufferedReader.readLine())!=null){
                 stringBuilder.append(string);
             }
-            Log.d(TAG,"GET web String url = "+stringUrl);
         }catch (MalformedURLException e){
             e.printStackTrace();
             Log.d(TAG,"URL Exception");
@@ -63,9 +64,51 @@ public class WebTools {
         if (stringBuilder.length()==0){
             return null;
         }
+        //将读取到的数据临时保存到本地，方便测试
         Tools.saveFileToLocal(stringBuilder.toString(),"temp.json");
         return stringBuilder.toString();
     }
+
+    public static String postWebString(String urlString,String post){
+        URL url;
+        HttpURLConnection httpURLConnection=null;
+        PrintStream printPost=null;
+        BufferedReader bufferedReader=null;
+        StringBuilder stringBuilder=new StringBuilder();
+        try {
+            Log.d(TAG,"POST web String url = "+urlString);
+            Log.d(TAG,"POST  = "+post);
+            url=new URL(urlString);
+            httpURLConnection=(HttpURLConnection)url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+
+
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.connect();
+            printPost=new PrintStream(httpURLConnection.getOutputStream());
+            printPost.print(post);
+            bufferedReader=new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            String temp;
+            while ((temp=bufferedReader.readLine())!=null){
+                stringBuilder.append(temp);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+            Log.d(TAG,"HttpURLConnection failed");
+        }finally {
+            Tools.closeStream(bufferedReader);
+            Tools.closeStream(printPost);
+            if (httpURLConnection!=null){
+                httpURLConnection.disconnect();
+            }
+        }
+        if (stringBuilder.length()==0){
+            return null;
+        }
+        return stringBuilder.toString();
+    }
+
 
     /**
      * 从网络上下载图片，当网络连接出错时有可能为null

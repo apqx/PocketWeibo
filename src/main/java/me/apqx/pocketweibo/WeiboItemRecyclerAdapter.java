@@ -7,18 +7,22 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Animatable;
+import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -62,19 +66,13 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
     private List<WeiboItemData> list;
     private int resource;
     private int weiboType;
-    private PopupWindow popupWindow;
 
-    private TextView textView_SavePost;
-    private TextView textView_UnFollow;
-    private ImageButton btnSavePost;
-    private ImageButton btnUnFollow;
-    private LinearLayout linearLayoutSavePost;
-    private LinearLayout linearLayoutUnFollow;
     private Handler handler;
     private Activity activity;
 
     private MyOnClickListener onClickListener;
     private OnRefreshDownListener refreshDownListener;
+    private OnCommentClickListener onCommentClickListener;
 
     public WeiboItemRecyclerAdapter(List<WeiboItemData> list, int resource,int weiboType,Activity activity) {
         super();
@@ -88,13 +86,14 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         MyViewHolder myViewHolder;
+        View expandView=LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_weibo_expand,null);
         if (viewType==ITEM_NORMAL){
             View view= LayoutInflater.from(parent.getContext()).inflate(resource,parent,false);
-            myViewHolder=new MyViewHolder(view,ITEM_NORMAL);
+            myViewHolder=new MyViewHolder(view,expandView,ITEM_NORMAL);
             return myViewHolder;
         }else {
             View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_weibo_footer,null);
-            myViewHolder=new MyViewHolder(view,ITEM_FOOTER);
+            myViewHolder=new MyViewHolder(view,expandView,ITEM_FOOTER);
             return myViewHolder;
         }
     }
@@ -107,7 +106,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                 refreshDownListener.refreshDown();
                 Log.d(TAG,"Refresh Down");
             }
-            if (weiboType==WEIBO_DETAIL||weiboType==WEIBO_USER_PAGE){
+            if (weiboType==WEIBO_DETAIL||weiboType==WEIBO_USER_PAGE||getItemCount()==1){
                 holder.progressBar.setVisibility(View.GONE);
             }
             return;
@@ -120,7 +119,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         holder.textView_name.setText(userData.getUserName());
         holder.textView_content.setText(weiboItemData.getContent());
         holder.draweeView_head.setImageURI(userData.getUserHeadPicURL());
-        if (weiboType==WEIBO_MAINPAGE_LIST){
+        if (weiboType!=WEIBO_DETAIL){
             //如果跳转到微博详细页面，应该隐藏这些信息，因为有取代的显示方式
             holder.textView_likeCount.setText(weiboItemData.getLikeCount());
             holder.textView_rePostCount.setText(weiboItemData.getRePostCount());
@@ -133,9 +132,16 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         //把微博ID保存在View里,这样当点击列表Item的时候可以明确的知道点击的是哪个微博
         holder.textView_content.setTag(weiboItemData.getWeiboId());
         holder.btnExpand.setTag(weiboItemData.getWeiboId());
+        holder.btn_attitude.setTag(weiboItemData.getWeiboId());
+        holder.btn_repost.setTag(weiboItemData.getWeiboId());
+        holder.btn_share.setTag(weiboItemData.getWeiboId());
+        holder.btn_comment.setTag(weiboItemData.getWeiboId());
+        holder.linearLayoutUnFollow.setTag(weiboItemData.getWeiboId());
+        holder.linearLayoutSavePost.setTag(weiboItemData.getWeiboId());
         //把用户名保存在View里，这样当用户点击名字或头像时可以知道点击的具体用户
         holder.draweeView_head.setTag(userData.getUserName());
         holder.textView_name.setTag(userData.getUserName());
+
         //对有图片的微博显示图片
         if (weiboItemData.hasPics()){
             holder.gridLayout_pic.setVisibility(View.VISIBLE);
@@ -147,14 +153,34 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             holder.gridLayout_pic.setVisibility(View.GONE);
         }
 
+        if (weiboItemData.isFavorited()){
+            Log.d(TAG,"已被收藏");
+            //如果当前微博已经被收藏
+            holder.btnSavePost.setImageResource(R.drawable.icon_star);
+            holder.textView_SavePost.setText(R.string.unsave_post);
+        }else {
+            Log.d(TAG,"未被收藏");
+            holder.btnSavePost.setImageResource(R.drawable.icon_unstar);
+            holder.textView_SavePost.setText(R.string.save_post);
+        }
+        if (userData.isFollowed()){
+            //如果已经关注了当前用户
+            holder.btnUnFollow.setImageResource(R.drawable.icon_follow);
+            holder.textView_UnFollow.setText(R.string.unfollow);
+        }else {
+            holder.btnUnFollow.setImageResource(R.drawable.icon_unfollow);
+            holder.textView_UnFollow.setText(R.string.follow);
+        }
+
         if (weiboItemData.hasReTwitter()){
             holder.relativeLayout_reTwitterMain.setVisibility(View.VISIBLE);
             WeiboItemData reTwitterWeibo=weiboItemData.getReTwitterWeibo();
             UserData reTwitterUserData=reTwitterWeibo.getWeiboUserData();
             holder.textView_reTwitter_state.setText(getReTwitterState(reTwitterWeibo.getRePostCount(),reTwitterWeibo.getCommentCount(),reTwitterWeibo.getLikeCount()));
             holder.textView_reTwitter_content.setText("@"+reTwitterUserData.getUserName()+": "+reTwitterWeibo.getContent());
-            //把被转发的微博ID保存在View里
-            holder.textView_reTwitter_content.setTag(weiboItemData.getWeiboId());
+            //把被转发的微博原ID保存在View里
+            holder.textView_reTwitter_content.setTag(reTwitterWeibo.getWeiboId());
+
             if (reTwitterWeibo.hasPics()){
                 holder.gridLayout_reTwitter_pic.setVisibility(View.VISIBLE);
                 Log.d(TAG,"ReTwitter "+reTwitterUserData.getUserName()+" has pic nem = "+reTwitterWeibo.getPicUrls().getImageCount());
@@ -166,7 +192,6 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         }else {
             holder.relativeLayout_reTwitterMain.setVisibility(View.GONE);
         }
-//        holder.btnExpand.setOnClickListener(new MyOnClickListener());
 
     }
     //获取转发微博的状态
@@ -205,10 +230,21 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         private TextView textView_rePostCount;
         private RelativeLayout relativeLayout_reTwitterMain;
         private ImageButton btnExpand;
+        private ImageButton btn_attitude;
+        private ImageButton btn_comment;
+        private ImageButton btn_repost;
+        private ImageButton btn_share;
         private int itemType;
+        private PopupWindow popupWindow;
+        private TextView textView_SavePost;
+        private TextView textView_UnFollow;
+        private ImageButton btnSavePost;
+        private ImageButton btnUnFollow;
+        private LinearLayout linearLayoutSavePost;
+        private LinearLayout linearLayoutUnFollow;
 
         private ProgressBar progressBar;
-        public MyViewHolder(View itemView,int type) {
+        public MyViewHolder(View itemView,View expandView,int type) {
             super(itemView);
             this.itemType=type;
             if (type==ITEM_NORMAL){
@@ -232,70 +268,58 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                 linearLayoutUnFollow=(LinearLayout)itemView.findViewById(R.id.linearLayout_unFollow);
                 textView_SavePost=(TextView)itemView.findViewById(R.id.textView_expand_addToFavorite);
                 textView_UnFollow=(TextView)itemView.findViewById(R.id.textView_expand_follow);
+                btn_attitude=(ImageButton)itemView.findViewById(R.id.btn_main_item_like); 
+                btn_comment=(ImageButton)itemView.findViewById(R.id.btn_main_item_comment); 
+                btn_share=(ImageButton)itemView.findViewById(R.id.btn_main_item_share); 
+                btn_repost=(ImageButton)itemView.findViewById(R.id.btn_main_item_rePost);
+
+                btnSavePost=(ImageButton)expandView.findViewById(R.id.imageButton_expand_addToFavorite);
+                btnUnFollow=(ImageButton)expandView.findViewById(R.id.imageButton_expand_follow);
+                linearLayoutSavePost=(LinearLayout)expandView.findViewById(R.id.linearLayout_savePost);
+                linearLayoutUnFollow=(LinearLayout)expandView.findViewById(R.id.linearLayout_unFollow);
+                textView_SavePost=(TextView)expandView.findViewById(R.id.textView_expand_addToFavorite);
+                textView_UnFollow=(TextView)expandView.findViewById(R.id.textView_expand_follow);
+                if (popupWindow==null){
+                    popupWindow=new PopupWindow(expandView, ViewTools.dpToPx(itemView.getContext(),150),ViewTools.dpToPx(itemView.getContext(),130));
+                }
+                popupWindow.setFocusable(true);
+                // 设置允许在外点击消失
+                popupWindow.setOutsideTouchable(true);
+
+                popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        btnExpand.animate().setDuration(500).rotation(0).start();
+                    }
+                });
+                OnExpandClickListener listener=new OnExpandClickListener(this);
+                linearLayoutSavePost.setOnClickListener(listener);
+                linearLayoutUnFollow.setOnClickListener(listener);
+
+
 
                 onClickListener=new MyOnClickListener();
-                btnExpand.setOnClickListener(onClickListener);
+                btnExpand.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.showAsDropDown(btnExpand,0,0);
+                    }
+                });
                 textView_content.setOnClickListener(onClickListener);
                 textView_reTwitter_content.setOnClickListener(onClickListener);
                 textView_name.setOnClickListener(onClickListener);
                 draweeView_head.setOnClickListener(onClickListener);
+                btn_attitude.setOnClickListener(onClickListener);
+                btn_comment.setOnClickListener(onClickListener);
+                btn_share.setOnClickListener(onClickListener);
+                btn_repost.setOnClickListener(onClickListener);
             }else {
                 //说明是Footer，这里加载另一个布局
                 progressBar=(ProgressBar)itemView.findViewById(R.id.progressbar);
             }
         }
     }
-    //弹出窗口显示对微博的操作选项，收藏，关注
-    private void showWeiboItemExpandWindow(final View view,String weiboId){
-        View expandView=LayoutInflater.from(view.getContext()).inflate(R.layout.layout_weibo_expand,null);
-        btnSavePost=(ImageButton)expandView.findViewById(R.id.imageButton_expand_addToFavorite);
-        btnUnFollow=(ImageButton)expandView.findViewById(R.id.imageButton_expand_follow);
-        linearLayoutSavePost=(LinearLayout)expandView.findViewById(R.id.linearLayout_savePost);
-        linearLayoutUnFollow=(LinearLayout)expandView.findViewById(R.id.linearLayout_unFollow);
-        textView_SavePost=(TextView)expandView.findViewById(R.id.textView_expand_addToFavorite);
-        textView_UnFollow=(TextView)expandView.findViewById(R.id.textView_expand_follow);
-        WeiboItemData weiboItemData=MainPageActivity.getWeiboItem(weiboId);
-        if (weiboItemData==null){
-            Tools.showToast("Error");
-            return;
-        }
-        UserData userData=weiboItemData.getWeiboUserData();
-        if (weiboItemData.isFavorited()){
-            //如果当前微博已经被收藏
-            btnSavePost.setImageResource(R.drawable.icon_star);
-            textView_SavePost.setText(R.string.unsave_post);
-        }else {
-            btnSavePost.setImageResource(R.drawable.icon_unstar);
-            textView_SavePost.setText(R.string.save_post);
-        }
-        if (userData.isFollowed()){
-            //如果已经关注了当前用户
-            btnUnFollow.setImageResource(R.drawable.icon_follow);
-            textView_UnFollow.setText(R.string.unfollow);
-        }else {
-            btnUnFollow.setImageResource(R.drawable.icon_unfollow);
-            textView_UnFollow.setText(R.string.follow);
-        }
-        OnExpandClickListener listener=new OnExpandClickListener(weiboItemData);
-        linearLayoutSavePost.setOnClickListener(listener);
-        linearLayoutUnFollow.setOnClickListener(listener);
-        if (popupWindow==null){
-            popupWindow=new PopupWindow(expandView, ViewTools.dpToPx(view.getContext(),150),ViewTools.dpToPx(view.getContext(),130));
-        }
-        popupWindow.setFocusable(true);
-        // 设置允许在外点击消失
-        popupWindow.setOutsideTouchable(true);
-        int xPos=(int)view.getX();
-        int yPos=(int)view.getY();
-        popupWindow.showAsDropDown(view,xPos,yPos);
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                view.animate().setDuration(500).rotation(0).start();
-            }
-        });
 
-    }
     //微博中有图片，根据图片的多少自动调整GridLayout的布局并动态加载图片
     private void setGridImage(PicUrls picUrls, GridLayout gridLayout,String weiboId){
         gridLayout.removeAllViews();
@@ -374,25 +398,33 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
     }
     private class MyOnClickListener implements View.OnClickListener{
         String weiboId;
+        Intent intent;
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.btn_main_item_expand:
-                    weiboId = v.getTag().toString();
-                    //此时应该弹出窗口
-                    v.animate().setDuration(500).rotation(180).start();
-                    showWeiboItemExpandWindow(v, weiboId);
-                    break;
+//                case R.id.btn_main_item_expand:
+//                    weiboId = v.getTag().toString();
+//                    //此时应该弹出窗口
+//                    v.animate().setDuration(500).rotation(180).start();
+//                    showWeiboItemExpandWindow(v, weiboId);
+//                    break;
                 case R.id.textView_main_item_content:
                     weiboId = v.getTag().toString();
                     LinkTextView linkTextView = (LinkTextView) v;
                     //当点击TextView内部的链接时，不应该再执行这里的点击事件
                     if (!linkTextView.shouldInterruptClick()) {
                         //这不是被转发的微博，所以在该微博的详细界面，点击不再跳转
-                        if (weiboType == WEIBO_MAINPAGE_LIST) {
-                            //跳转到微博详细界面，传输微博ID
-                            Intent intent = new Intent(v.getContext(), WeiboDetailActivity.class);
+                        if (weiboType != WEIBO_DETAIL) {
+                            //跳转到微博详细界面，传输微博ID和微博信息
+                            intent = new Intent(v.getContext(), WeiboDetailActivity.class);
                             intent.putExtra("apqx", weiboId);
+                            intent.putExtra("reTwitter", false);
+                            intent.putExtra("weibo",getItemByIdFromList(weiboId).toString());
+                            if (weiboType==WEIBO_USER_PAGE){
+                                intent.putExtra("isFromUser",true);
+                            }else {
+                                intent.putExtra("isFromUser",false);
+                            }
                             v.getContext().startActivity(intent);
                         }
                     }
@@ -403,10 +435,16 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                     LinkTextView textView = (LinkTextView) v;
                     if (!textView.shouldInterruptClick()) {
                         //跳转到微博详细界面
-                        Intent reIntent = new Intent(v.getContext(), WeiboDetailActivity.class);
-                        reIntent.putExtra("reTwitter", true);
-                        reIntent.putExtra("apqx", weiboId);
-                        v.getContext().startActivity(reIntent);
+                        intent= new Intent(v.getContext(), WeiboDetailActivity.class);
+                        intent.putExtra("reTwitter", true);
+                        intent.putExtra("apqx", weiboId);
+                        intent.putExtra("weibo",getItemByIdFromList(weiboId).toString());
+                        if (weiboType==WEIBO_USER_PAGE){
+                            intent.putExtra("isFromUser",true);
+                        }else {
+                            intent.putExtra("isFromUser",false);
+                        }
+                        v.getContext().startActivity(intent);
                     }
                     textView.donotInterruptClick();
                     break;
@@ -417,18 +455,73 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                     intent.putExtra("apqx",userName);
                     v.getContext().startActivity(intent);
                     break;
+                case R.id.btn_main_item_like:
+                    break;
+                case R.id.btn_main_item_comment:
+                    weiboId=v.getTag().toString();
+                    if (weiboType==WEIBO_MAINPAGE_LIST){
+                        intent=new Intent(activity,WeiboDetailActivity.class);
+                        intent.putExtra("apqx",weiboId);
+                        intent.putExtra("clickComment",true);
+                        intent.putExtra("weibo",getItemByIdFromList(weiboId).toString());
+                        activity.startActivity(intent);
+                    }else {
+                        //应该弹出评论窗口
+                        if (onCommentClickListener!=null){
+                            onCommentClickListener.commentClick();
+                        }
+                    }
+                    break;
+                case R.id.btn_main_item_share:
+                    //弹出分享列表
+                    weiboId=v.getTag().toString();
+                    WeiboItemData weiboItemData=getItemByIdFromList(weiboId);
+                    intent=new Intent(Intent.ACTION_SEND);
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Share");
+                    String string;
+                    if (weiboItemData.hasReTwitter()){
+                        WeiboItemData reTwitter=weiboItemData.getReTwitterWeibo();
+                        string=weiboItemData.getWeiboUserData().getUserName()+"："+weiboItemData.getContent()+"\n"+reTwitter.getWeiboUserData().getUserName()+":"+reTwitter.getContent();
+                    }else {
+                        string=weiboItemData.getWeiboUserData().getUserName()+"："+weiboItemData.getContent();
+                    }
+                    intent.putExtra(Intent.EXTRA_TEXT,string );
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(Intent.createChooser(intent,activity.getString(R.string.share_weibo)));
+
+                    break;
+                case R.id.btn_main_item_rePost:
+                    break;
             }
             Log.d(TAG,"weibo id = "+weiboId+" clicked");
         }
     }
+    //从列表中查找指定Id的微博，包括转发的微博
+    private WeiboItemData getItemByIdFromList(String weiboId){
+        for (WeiboItemData weiboItemData:list){
+            if (weiboItemData.getWeiboId().equals(weiboId)){
+                return weiboItemData;
+            }
+            if (weiboItemData.hasReTwitter()){
+                WeiboItemData reTwitter=weiboItemData.getReTwitterWeibo();
+                if (reTwitter.getWeiboId().equals(weiboId)){
+                    return reTwitter;
+                }
+            }
+        }
+        return null;
+    }
+
     //按钮点击展开
     private class OnExpandClickListener implements View.OnClickListener{
-        private WeiboItemData weiboItemData;
-        OnExpandClickListener(WeiboItemData weiboItemData){
-            this.weiboItemData=weiboItemData;
+        private MyViewHolder holder;
+        public OnExpandClickListener(MyViewHolder holder){
+            this.holder=holder;
         }
         @Override
         public void onClick(View v) {
+            WeiboItemData weiboItemData=getItemByIdFromList(v.getTag().toString());
             switch (v.getId()){
                 case R.id.linearLayout_savePost:
                     //因为点击此之前一定点击btn_main_item_expand，所以可以获得微博ID
@@ -440,9 +533,13 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                     if (weiboItemData.isFavorited()){
                         //如果已经被收藏了
                         Tools.showToast(R.string.remove_from_favorite);
+                        holder.btnSavePost.setImageResource(R.drawable.icon_unstar);
+                        holder.textView_SavePost.setText(R.string.save_post);
                     }else {
                         //如果没有被收藏
                         Tools.showToast(R.string.add_to_favorite);
+                        holder.btnSavePost.setImageResource(R.drawable.icon_star);
+                        holder.textView_SavePost.setText(R.string.unsave_post);
                     }
                     break;
                 case R.id.linearLayout_unFollow:
@@ -453,16 +550,20 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                     if (weiboItemData.getWeiboUserData().isFollowed()){
                         //如果已经关注了此人
                         Tools.showToast(R.string.unfollow_success);
+                        holder.btnUnFollow.setImageResource(R.drawable.icon_unfollow);
+                        holder.textView_UnFollow.setText(R.string.follow);
                     }else {
                         //如果没有关注此人
                         Tools.showToast(R.string.follow_success);
+                        holder.btnUnFollow.setImageResource(R.drawable.icon_follow);
+                        holder.textView_UnFollow.setText(R.string.unfollow);
                     }
                     break;
 
             }
         }
     }
-    //图片网格点击监听器
+    //图片网格点击监听器，点击网格中的一张图片，弹出一个大的窗口查看
     private class GridItemClickListener implements View.OnClickListener{
         private PicUrls picUrls;
         private int index;
@@ -478,6 +579,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             List<View> list=new ArrayList<View>();
             for (int i=0;i<picUrls.getImageCount();i++){
                 final PhotoDraweeView mPhotoDraweeView=(PhotoDraweeView) LayoutInflater.from(activity).inflate(R.layout.layout_item_fresco_viewpage,null);
+                mPhotoDraweeView.setMaximumScale(10);
                 PipelineDraweeControllerBuilder controller = Fresco.newDraweeControllerBuilder();
                 controller.setUri(picUrls.getOriginalImageUrlAt(i));
                 controller.setAutoPlayAnimations(true);
@@ -517,21 +619,23 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             PagerAdapter pagerAdapter=new GridPicPageAdapter(list);
             viewPager.setAdapter(pagerAdapter);
             viewPager.setCurrentItem(index);
-            AlertDialog.Builder builder=new AlertDialog.Builder(activity);
-            builder.setView(view);
-            final AlertDialog alertDialog=builder.create();
-            alertDialog.show();
-            alertDialog.setCanceledOnTouchOutside(true);
-            viewPager.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    alertDialog.cancel();
-                }
-            });
+
+            final PopupWindow popupWindow=new PopupWindow(view, ViewPager.LayoutParams.MATCH_PARENT, ViewPager.LayoutParams.MATCH_PARENT);
+            popupWindow.setFocusable(true);
+            popupWindow.showAsDropDown(viewPager);
 
 
         }
     }
+
+    public void setOnCommentClickListener(OnCommentClickListener onCommentClickListener){
+        this.onCommentClickListener=onCommentClickListener;
+    }
+
+    interface OnCommentClickListener{
+        void commentClick();
+    }
+
     private class GridPicPageAdapter extends PagerAdapter{
         private List<View> list;
         public GridPicPageAdapter(List<View> list) {
@@ -567,6 +671,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             return super.getPageTitle(position);
         }
     }
+
     private boolean checktPermission(String permission){
         return ContextCompat.checkSelfPermission(activity,permission)== PackageManager.PERMISSION_GRANTED;
     }

@@ -5,16 +5,78 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/drawerLayout"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
     <include layout="@layout/layout_toolbar"/>
     <android.support.design.widget.NavigationView
-        android:layout_width="250dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:id="@+id/navigationView"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/layout_nav_header"
-        app:menu="@menu/nav_menu">
+        android:background="?attr/weiboBgColor">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <include
+                layout="@layout/layout_nav_header"/>
 
+            <TextView
+                android:id="@+id/nav_textView_profile"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/ripple_menu"
+                android:clickable="true"
+                android:drawableLeft="@drawable/icon_profile"
+                android:drawablePadding="40dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="@string/nav_menu_profile"
+                android:textSize="15sp"
+                android:textColor="?attr/weiboTextColor"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/nav_textView_settings"
+                android:drawableLeft="@drawable/icon_settings"
+                android:text="@string/nav_menu_settings"
+                android:gravity="center_vertical"
+                android:drawablePadding="40dp"
+                android:textSize="15sp"
+                android:paddingLeft="10dp"
+                android:background="@drawable/ripple_menu"
+                android:textColor="?attr/weiboTextColor"
+                android:clickable="true"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ripple_menu"
+                android:clickable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/nav_textView_night"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/icon_night"
+                    android:text="夜间模式"
+                    android:gravity="center_vertical"
+                    android:drawablePadding="40dp"
+                    android:textSize="15sp"
+                    android:paddingLeft="10dp"
+                    android:textColor="?attr/weiboTextColor"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/switch_night"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
     </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>

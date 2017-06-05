@@ -36,5 +36,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="15dp"
         app:layout_behavior="me.apqx.pocketweibo.FabBehavior"
-        android:src="@drawable/icon_add"/>
+        android:src="@drawable/icon_refresh"/>
 </android.support.design.widget.CoordinatorLayout>

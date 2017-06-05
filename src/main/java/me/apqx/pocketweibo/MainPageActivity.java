@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,9 +20,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -46,7 +50,7 @@ import me.apqx.pocketweibo.tools.WebTools;
  * 主页面
  */
 
-public class MainPageActivity extends AppCompatActivity {
+public class MainPageActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG="MainPageActivity";
     private static final int FILL_WEIBO_FROM_WEB_UP =0;
     private static final int FILL_WEIBO_FROM_WEB_DOWN =1;
@@ -64,18 +68,25 @@ public class MainPageActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private WeiboItemRecyclerAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView.LayoutManager layoutManager;
     private NavigationView navigationView;
-    private View headLayout;
     private SimpleDraweeView simpleDraweeView_head;
     private TextView textView_userName;
     private UserData userData;
+    private TextView navTextViewProfile;
+    private TextView navTextViewSettings;
+    private TextView navTextViewNight;
+    private Switch switchNight;
     //本地的微博列表是源JSONObject转换的WeiboItemData对象
     private static List<WeiboItemData> list;
     private List<WeiboItemData> tempList;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (MyApplication.getMyTheme()==MyApplication.THEME_DARK){
+            setTheme(R.style.AppTheme_Dark_Main);
+        }else {
+            setTheme(R.style.AppTheme_Light_Main);
+        }
         setContentView(R.layout.layout_main);
         toolbar=(Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -84,15 +95,20 @@ public class MainPageActivity extends AppCompatActivity {
         toggle.syncState();
         drawerLayout.addDrawerListener(toggle);
         navigationView=(NavigationView)findViewById(R.id.navigationView);
-        headLayout=navigationView.getHeaderView(0);
 
         fab=(FloatingActionButton)findViewById(R.id.fab);
         swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout_main_page);
         swipeRefreshLayout.setOnRefreshListener(new MyOnRefreshListener());
-        View navView= LayoutInflater.from(this).inflate(R.layout.layout_nav_header,null);
-        simpleDraweeView_head=(SimpleDraweeView)headLayout.findViewById(R.id.simpleDraweeView_nav_head);
+        simpleDraweeView_head=(SimpleDraweeView)findViewById(R.id.simpleDraweeView_nav_head);
 //        Log.d(TAG,simpleDraweeView_head.toString());
-        textView_userName=(TextView)headLayout.findViewById(R.id.textView_nav_username);
+        textView_userName=(TextView)findViewById(R.id.textView_nav_username);
+        navTextViewNight=(TextView)findViewById(R.id.nav_textView_night);
+        navTextViewProfile=(TextView)findViewById(R.id.nav_textView_profile);
+        navTextViewSettings=(TextView)findViewById(R.id.nav_textView_settings);
+        switchNight=(Switch)findViewById(R.id.switch_night);
+        if (MyApplication.getMyTheme()==MyApplication.THEME_DARK){
+            switchNight.setChecked(true);
+        }
 
         int resource;
         if (isPad()){
@@ -102,6 +118,7 @@ public class MainPageActivity extends AppCompatActivity {
         }
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView_mainPage);
         list=new ArrayList<WeiboItemData>();
+        RecyclerView.LayoutManager layoutManager;
         adapter=new WeiboItemRecyclerAdapter(list,resource,WeiboItemRecyclerAdapter.WEIBO_MAINPAGE_LIST,this);
         if (isPad()||getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE){
             layoutManager=new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
@@ -115,12 +132,15 @@ public class MainPageActivity extends AppCompatActivity {
         exec= AppThreadPool.getThreadPool();
         handler=new DataHandler();
 
-        Intent intent=getIntent();
-        String uid=intent.getStringExtra("uid");
-        //启动时，首先从本地读取保存好的微博，如果本地不存在缓存文件，就从网络中读取
-        exec.execute(new TaskReadWeiboListFromLocal());
-        //启动时，先从本地读取用户信息
-        exec.execute(new TaskReadUserDataFromLocal(uid));
+        if (Constant.accessToken!=null){
+            Intent intent=getIntent();
+            //从登陆界面获得uid
+            String uid=intent.getStringExtra("uid");
+            //启动时，首先从本地读取保存好的微博，如果本地不存在缓存文件，就从网络中读取
+            exec.execute(new TaskReadWeiboListFromLocal());
+            //启动时，先从本地读取用户信息
+            exec.execute(new TaskReadUserDataFromLocal(uid));
+        }
 
 
         adapter.setOnRefreshDownListener(new WeiboItemRecyclerAdapter.OnRefreshDownListener() {
@@ -133,12 +153,50 @@ public class MainPageActivity extends AppCompatActivity {
         });
 
 
+
+        setListener();
+    }
+
+    private void setListener(){
+        simpleDraweeView_head.setOnClickListener(this);
+        textView_userName.setOnClickListener(this);
+        toolbar.setOnClickListener(this);
+        navTextViewSettings.setOnClickListener(this);
+        navTextViewProfile.setOnClickListener(this);
+        navTextViewNight.setOnClickListener(this);
+        switchNight.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    MyApplication.setMyTheme(MyApplication.THEME_DARK);
+                }else {
+                    MyApplication.setMyTheme(MyApplication.THEME_LIGHT);
+                }
+                recreate();
+            }
+        });
+        fab.setOnClickListener(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }else{
+            super.onBackPressed();
+        }
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         drawerLayout.removeDrawerListener(toggle);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -160,6 +218,39 @@ public class MainPageActivity extends AppCompatActivity {
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.toolbar:
+                recyclerView.scrollToPosition(0);
+                break;
+            case R.id.textView_nav_username:
+            case R.id.simpleDraweeView_nav_head:
+            case R.id.nav_textView_profile:
+                if (userData!=null){
+                    Intent intent=new Intent(MainPageActivity.this,UserDataActivity.class);
+                    intent.putExtra("apqx",userData.getUserName());
+                    startActivity(intent);
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
+                break;
+            case R.id.nav_textView_settings:
+                startActivity(new Intent(this,SettingActivity.class));
+                drawerLayout.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.nav_textView_night:
+
+                break;
+            case R.id.fab:
+                if (!swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(true);
+                    exec.execute(new TaskLoadNewWeibo());
+                }
+                break;
+        }
+    }
+
     private class DataHandler extends Handler{
         @Override
         public void handleMessage(Message msg) {
@@ -179,7 +270,7 @@ public class MainPageActivity extends AppCompatActivity {
                         swipeRefreshLayout.setRefreshing(true);
                         exec.execute(new TaskLoadNewWeibo());
                     }
-                    Log.d("LinkTextView",list.get(2).getContent());
+
                     break;
                 case FILL_WEIBO_FROM_WEB_UP:
                     //向上刷新
@@ -260,6 +351,9 @@ public class MainPageActivity extends AppCompatActivity {
     private class TaskLoadNewWeibo implements Runnable{
         @Override
         public void run() {
+            if (Constant.accessToken==null){
+                return;
+            }
             String urlString="https://api.weibo.com/2/statuses/home_timeline.json?access_token="+Constant.accessToken.getToken();
             String weibos= WebTools.getWebString(urlString);
             if (weibos==null){
@@ -359,6 +453,7 @@ public class MainPageActivity extends AppCompatActivity {
         @Override
         public void onRefresh() {
             exec.execute(new TaskLoadNewWeibo());
+
         }
     }
     private class TaskSaveWeiboToLocal implements Runnable{
@@ -395,6 +490,18 @@ public class MainPageActivity extends AppCompatActivity {
             handler.sendMessage(message);
         }
     }
+
+    private class UserClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            Intent intent=new Intent(MainPageActivity.this,UserDataActivity.class);
+            intent.putExtra("apqx",userData.getUserName());
+            startActivity(intent);
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+
 
 
 

@@ -17,7 +17,6 @@ public class UserData {
     private String followerCount;
     private String websiteUrl;
     private String gender;
-    private String likeCount;
     private String userId;
     private boolean isFollowed;
     public UserData(Builder builder){
@@ -30,7 +29,6 @@ public class UserData {
         this.followerCount=builder.followerCount;
         this.websiteUrl=builder.websiteUrl;
         this.gender=builder.gender;
-        this.likeCount=builder.likeCount;
         this.isFollowed=builder.isFollowed;
         this.userId=builder.userId;
     }
@@ -73,10 +71,6 @@ public class UserData {
         return gender;
     }
 
-    public String getLikeCount() {
-        return likeCount;
-    }
-
     public String getUserId() {
         return userId;
     }
@@ -99,7 +93,6 @@ public class UserData {
             jsonObject.put(ParseJsonTools.FOLLOWERS_COUNT,followerCount);
             jsonObject.put(ParseJsonTools.WEBSITE_URL,websiteUrl);
             jsonObject.put(ParseJsonTools.GENDER,gender);
-            jsonObject.put(ParseJsonTools.LIKE_COUNT,likeCount);
             jsonObject.put(ParseJsonTools.ISFOLLOWING,isFollowed);
             jsonObject.put(ParseJsonTools.USER_ID,userId);
 
@@ -120,7 +113,6 @@ public class UserData {
         private String followerCount;
         private String websiteUrl;
         private String gender;
-        private String likeCount;
         private String userId;
         private boolean isFollowed;
 
@@ -171,11 +163,6 @@ public class UserData {
 
         public Builder setGender(String gender) {
             this.gender = gender;
-            return this;
-        }
-
-        public Builder setLikeCount(String likeCount) {
-            this.likeCount = likeCount;
             return this;
         }
 

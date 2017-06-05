@@ -5,16 +5,57 @@
         <item name="colorPrimary">@color/light.colorPrimary</item>
         <item name="colorPrimaryDark">@color/light.colorPrimaryDark</item>
         <item name="colorAccent">@color/light.colorAccent</item>
+        <item name="titleTextColor">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
+
     </style>
-    <style name="AppTheme.MainPage.Light" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme.Light">
         <item name="colorPrimary">@color/light.colorPrimary</item>
         <item name="colorPrimaryDark">@color/light.colorPrimaryDark</item>
         <item name="colorAccent">@color/light.colorAccent</item>
+        <item name="titleTextColor">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <!--主微博背景-->
+        <item name="weiboBgColor">@color/color_white</item>
+        <!--转发微博背景-->
+        <item name="reTwitterBgColor">@color/light.colorPrimaryDark</item>
+        <!--微博字体颜色-->
+        <item name="weiboTextColor">@color/light.weiboTextColor</item>
+        <!--主界面微博用户名颜色-->
+        <item name="weiboUserNameColor">@color/light.weiboUserColor</item>
+        <!--微博第二颜色-->
+        <item name="weiboSecondTextColor">@color/light.weiboSecondTextColor</item>
+
+        <item name="secondBackground">@color/light.windowBackground</item>
+        <item name="userbg">@mipmap/user_bg</item>
     </style>
-    <style name="AppTheme.MainPage.Dark" parent="ThemeOverlay.AppCompat.Dark"/>
-    <style name="AppTheme.SplashTheme">
-        <item name="colorPrimaryDark">@color/light.colorPrimary</item>
+    <style name="AppTheme.Dark">
+        <item name="colorPrimary">@color/dark.colorPrimary</item>
+        <item name="colorPrimaryDark">@color/dark.colorPrimaryDark</item>
+        <item name="colorAccent">@color/dark.colorAccent</item>
+        <item name="android:windowBackground">@color/dark.windowBackground</item>
+        <!--主微博背景-->
+        <item name="weiboBgColor">@color/dark.colorPrimary</item>
+        <!--转发微博背景-->
+        <item name="reTwitterBgColor">@color/dark.colorPrimaryDark</item>
+        <!--微博字体颜色-->
+        <item name="weiboTextColor">@color/dark.weiboTextColor</item>
+        <!--主界面微博用户名颜色-->
+        <item name="weiboUserNameColor">@color/dark.weiboUserColor</item>
+        <!--微博第二颜色-->
+        <item name="weiboSecondTextColor">@color/dark.weiboSecondTextColor</item>
+
+        <item name="secondBackground">@color/dark.colorPrimaryDark</item>
+
+        <item name="userbg">@mipmap/user_bg_dark</item>
+    </style>
+    <style name="AppTheme.Dark.Transparent">
+        <item name="android:windowBackground">@color/transparent</item>
+        　<item name="android:windowIsTranslucent">true</item>
+    </style>
+    <style name="AppTheme.Light.Transparent">
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
     <style name="textStyle_reTwitter_state">
         <item name="android:maxLines">1</item>
@@ -28,13 +69,8 @@
     <style name="textStyle_weibo_state">
         <item name="android:maxLines">1</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/color_grey_black</item>
     </style>
     <style name="ViewTheme_Ripple">
         <item name="android:background">@android:color/transparent</item>
-    </style>
-    <style name="AppTheme.TransparentBg">
-        <item name="android:windowBackground">@color/transparent</item>
-    　　<item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>

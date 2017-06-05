@@ -14,12 +14,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainPageActivity"
-            android:theme="@style/AppTheme.MainPage.Light"/>
+            android:theme="@style/AppTheme.Light.Main"/>
         <activity android:name=".WeiboDetailActivity"
-            android:theme="@style/AppTheme.TransparentBg"/>
+            android:theme="@style/AppTheme.Light.Transparent"/>
         <activity android:name=".UserDataActivity"
-            android:theme="@style/AppTheme.TransparentBg"/>
+            android:theme="@style/AppTheme.Light.Transparent"/>
         <activity android:name=".TempActivity"/>
+        <activity android:name=".SettingActivity"
+            android:theme="@style/AppTheme.Light.Transparent"/>
     </application>
 
 </manifest>

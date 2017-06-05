@@ -67,6 +67,11 @@ public class UserDataActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (MyApplication.getMyTheme()==MyApplication.THEME_DARK){
+            setTheme(R.style.AppTheme_Dark_Transparent);
+        }else {
+            setTheme(R.style.AppTheme_Light_Transparent);
+        }
         setContentView(R.layout.layout_user_page);
         toolbar=(Toolbar)findViewById(R.id.toolbar_userData);
         swipeActivityHelper=new SwipeActivityHelper(this);
@@ -102,6 +107,7 @@ public class UserDataActivity extends AppCompatActivity {
 
         //联网获取这个用户的微博
         exec.execute(new TaskGetUserWeiboFromWeb(userName));
+
     }
     private void setUserDataToView(){
         //根据获得UserData填充界面
@@ -182,6 +188,7 @@ public class UserDataActivity extends AppCompatActivity {
             }
         }
     }
+
     private class TaskGetUserWeiboFromWeb implements Runnable{
         private String userName;
         public TaskGetUserWeiboFromWeb(String userName){

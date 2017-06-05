@@ -15,9 +15,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp">
+                android:orientation="vertical">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -33,12 +31,14 @@
                         android:src="@drawable/icon_unstar"
                         android:background="@android:color/transparent"
                         android:id="@+id/imageButton_expand_addToFavorite"
-                        android:clickable="false"/>
+                        android:clickable="false"
+                        android:layout_marginLeft="10dp"/>
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/textView_expand_addToFavorite"
                         android:text="@string/save_post"
+                        android:textColor="?attr/weiboSecondTextColor"
                         android:gravity="center"/>
                 </LinearLayout>
                 <LinearLayout
@@ -56,12 +56,14 @@
                         android:src="@drawable/icon_follow"
                         android:background="@android:color/transparent"
                         android:id="@+id/imageButton_expand_follow"
+                        android:layout_marginLeft="10dp"
                         android:clickable="false"/>
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/textView_expand_follow"
                         android:text="@string/unfollow"
+                        android:textColor="?attr/weiboSecondTextColor"
                         android:gravity="center"/>
                 </LinearLayout>
 

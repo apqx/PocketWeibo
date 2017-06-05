@@ -126,6 +126,7 @@ public class SplashActivity extends Activity {
         public void onCancel() {
             Log.d(TAG,"onCancel");
             //用户拒绝授权，跳转到主页面，token为null
+            Constant.accessToken=null;
             startActivity(new Intent(SplashActivity.this,MainPageActivity.class));
         }
     }

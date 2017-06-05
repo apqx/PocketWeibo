@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/cardview_light_background">
+        android:background="?attr/weiboBgColor">
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/imageView_comment_item_head"
             android:layout_width="40dp"
@@ -34,7 +34,7 @@
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@id/imageView_comment_item_head"
             android:maxLines="1"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/weiboUserNameColor"
             android:textSize="12sp"
             tools:text="使徒子" />
 
@@ -46,6 +46,7 @@
             android:layout_below="@id/textView_comment_item_name"
             android:layout_marginTop="5dp"
             android:textAppearance="@style/textStyle_weibo_state"
+            android:textColor="?attr/weiboSecondTextColor"
             tools:text="5 mins ago" />
 
         <TextView
@@ -56,6 +57,7 @@
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@id/textView_comment_item_time"
             android:textAppearance="@style/textStyle_weibo_state"
+            android:textColor="?attr/weiboSecondTextColor"
             tools:text="From Nexus 5" />
         <ImageButton
             android:layout_width="50dp"
