@@ -7,6 +7,7 @@
         <item name="android:navigationBarColor">@color/light.colorPrimary</item>
         <item name="titleTextColor">@android:color/white</item>
         <item name="colorControlNormal">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
     </style>
     <style name="AppTheme.Light">
         <item name="colorPrimary">@color/light.colorPrimary</item>

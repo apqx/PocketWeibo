@@ -161,9 +161,10 @@ public class UserDataActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_user_page_follow,menu);
-        menuItem_follow=menu.findItem(R.menu.menu_user_page_follow);
-
+        if (userData!=null){
+            getMenuInflater().inflate(R.menu.menu_user_page_follow,menu);
+            menuItem_follow=menu.findItem(R.menu.menu_user_page_follow);
+        }
         return true;
     }
 

@@ -76,6 +76,8 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
     private TextView navTextViewSettings;
     private TextView navTextViewNight;
     private Switch switchNight;
+    private RecyclerView.LayoutManager layoutManager;
+    private int resumeIndex;
     //本地的微博列表是源JSONObject转换的WeiboItemData对象
     private static List<WeiboItemData> list;
     private List<WeiboItemData> tempList;
@@ -118,7 +120,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
         }
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView_mainPage);
         list=new ArrayList<WeiboItemData>();
-        RecyclerView.LayoutManager layoutManager;
+
         adapter=new WeiboItemRecyclerAdapter(list,resource,WeiboItemRecyclerAdapter.WEIBO_MAINPAGE_LIST,this);
         if (isPad()||getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE){
             layoutManager=new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
@@ -132,6 +134,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
         exec= AppThreadPool.getThreadPool();
         handler=new DataHandler();
 
+        //只有在用户已登录的情况下才加载微博信息
         if (Constant.accessToken!=null){
             Intent intent=getIntent();
             //从登陆界面获得uid
@@ -195,8 +198,29 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+            Log.d("apqx","onRestoreInstanceState");
+        if (savedInstanceState!=null){
+            resumeIndex=savedInstanceState.getInt("index");
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        RecyclerView.LayoutManager layoutManager=recyclerView.getLayoutManager();
+//            Log.d("apqx","onSaveInstanceState");
+        if (layoutManager instanceof LinearLayoutManager){
+            int index=((LinearLayoutManager)layoutManager).findFirstVisibleItemPosition();
+            outState.putInt("index",index);
+//            Log.d("apqx","LinearLayoutManager index = "+index);
+        }else if (layoutManager instanceof StaggeredGridLayoutManager){
+            int[] index=((StaggeredGridLayoutManager)layoutManager).findFirstVisibleItemPositions(null);
+            outState.putInt("index",index[0]);
+//            Log.d("apqx","StaggeredGridLayoutManager index = "+index[0]);
+        }
+
     }
 
     @Override
@@ -266,6 +290,9 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
                         list.clear();
                         list.addAll(tempList);
                         adapter.notifyDataSetChanged();
+                        if (resumeIndex!=0){
+                            layoutManager.scrollToPosition(resumeIndex);
+                        }
                     }else {
                         swipeRefreshLayout.setRefreshing(true);
                         exec.execute(new TaskLoadNewWeibo());
