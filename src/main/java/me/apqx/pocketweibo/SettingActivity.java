@@ -1,14 +1,21 @@
 package me.apqx.pocketweibo;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 
+import me.apqx.pocketweibo.tools.Settings;
+import me.apqx.pocketweibo.tools.WebTools;
 import me.apqx.pocketweibo.view.SwipeActivityHelper;
 import me.apqx.pocketweibo.view.SwipeActivityLayout;
 
@@ -16,10 +23,14 @@ import me.apqx.pocketweibo.view.SwipeActivityLayout;
  * Created by apqx on 2017/6/4.
  */
 
-public class SettingActivity extends AppCompatActivity implements View.OnClickListener{
+public class SettingActivity extends AppCompatActivity implements View.OnClickListener , CompoundButton.OnCheckedChangeListener{
 
+    private static final String TAG="SettingActivity";
     private SwipeActivityHelper swipeActivityHelper;
     private TextView textViewLogout;
+    private Switch switchService;
+    private Switch switchImage;
+    private TextView textViewAbout;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,10 +45,17 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         swipeActivityHelper.onActivityCreate();
 
         textViewLogout=(TextView)findViewById(R.id.textView_logout);
+        textViewAbout=(TextView)findViewById(R.id.textView_about);
+        switchService=(Switch)findViewById(R.id.switch_service);
+        switchImage=(Switch)findViewById(R.id.switch_image);
+        Settings settings=new Settings(this);
+        switchService.setChecked(settings.getServiceOn());
+        switchImage.setChecked(settings.getNoLoadImageOnLte());
         setListener();
     }
     private void setListener(){
         textViewLogout.setOnClickListener(this);
+        textViewAbout.setOnClickListener(this);
     }
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +67,8 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 SettingActivity.this.finish();
             }
         });
+        switchService.setOnCheckedChangeListener(this);
+        switchImage.setOnCheckedChangeListener(this);
     }
 
     @Override
@@ -59,7 +79,28 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 finish();
                 startActivity(new Intent(this,SplashActivity.class));
                 break;
+            case R.id.textView_about:
+                AlertDialog.Builder builder=new AlertDialog.Builder(this);
+                builder.setTitle("口袋微博")
+                        .setMessage("轻量级的第三方微博客户端，召之即来，挥之即去。\nVersion = 1.0");
+                AlertDialog dialog=builder.create();
+                dialog.show();
+                dialog.setCanceledOnTouchOutside(true);
+                break;
 
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        Settings settings=new Settings(SettingActivity.this);
+        switch (buttonView.getId()){
+            case R.id.switch_service:
+                settings.setServiceOn(isChecked);
+                break;
+            case R.id.switch_image:
+                settings.setNoLoadImageOnLte(isChecked);
+                break;
         }
     }
 }

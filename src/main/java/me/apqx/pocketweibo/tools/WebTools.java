@@ -1,7 +1,10 @@
 package me.apqx.pocketweibo.tools;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
@@ -22,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 
 import me.apqx.pocketweibo.Constant;
 import me.apqx.pocketweibo.AppThreadPool;
+import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
 
 /**
@@ -230,5 +234,15 @@ public class WebTools {
         public void run() {
             WebTools.downLoadPicToDisk(handler,urlString);
         }
+    }
+
+    //判断是否使用移动网络上网
+    public static boolean isUsingLTE(){
+        ConnectivityManager manager=(ConnectivityManager) MyApplication.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo=manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if (networkInfo!=null){
+            return networkInfo.isConnected();
+        }
+        return false;
     }
 }

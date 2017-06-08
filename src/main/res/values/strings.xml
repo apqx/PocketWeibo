@@ -38,6 +38,7 @@
     <string name="operation_success">操作成功</string>
     <string name="account_manager">账号管理</string>
     <string name="push_service">通知推送</string>
+    <string name="image_on_lte">流量下不加载图片</string>
     <string name="about">关于</string>
     <string name="Logout">注销</string>
 

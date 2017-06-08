@@ -169,6 +169,10 @@ public class Tools {
         Log.d(TAG,"readWeiboListFromLocal num = "+list.size());
         return list;
     }
+    //获取本地保存的最新的微博id
+    public static String getLastWeiboId(){
+        return readWeiboListFromLocal().get(0).getWeiboId();
+    }
     public static void saveUserDataToLocal(UserData userData){
         saveFileToLocal(userData.toString(),userData.getUserId()+".json");
         Log.d(TAG,"save userdata to local username is "+userData.getUserName()+" id is "+userData.getUserId());

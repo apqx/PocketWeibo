@@ -44,6 +44,7 @@ import java.util.List;
 import me.apqx.pocketweibo.struct.PicUrls;
 import me.apqx.pocketweibo.struct.UserData;
 import me.apqx.pocketweibo.struct.WeiboItemData;
+import me.apqx.pocketweibo.tools.Settings;
 import me.apqx.pocketweibo.tools.Tools;
 import me.apqx.pocketweibo.tools.ViewTools;
 import me.apqx.pocketweibo.tools.WebTools;
@@ -144,11 +145,16 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
 
         //对有图片的微博显示图片
         if (weiboItemData.hasPics()){
-            holder.gridLayout_pic.setVisibility(View.VISIBLE);
-            holder.gridLayout_pic.setTag(weiboItemData.getWeiboId());
-            Log.d(TAG,userData.getUserName()+" has pic nem = "+weiboItemData.getPicUrls().getImageCount());
-            //问题是这里获得的width老是0,说明到这里还没有加载完成
-            setGridImage(weiboItemData.getPicUrls(),holder.gridLayout_pic,weiboItemData.getWeiboId());
+            if (Settings.NO_IMAGE_ON_LTE&&WebTools.isUsingLTE()){
+                //只有这种情况是不显示图片的
+            }else {
+                holder.gridLayout_pic.setVisibility(View.VISIBLE);
+                holder.gridLayout_pic.setTag(weiboItemData.getWeiboId());
+                Log.d(TAG,userData.getUserName()+" has pic nem = "+weiboItemData.getPicUrls().getImageCount());
+                //问题是这里获得的width老是0,说明到这里还没有加载完成
+                setGridImage(weiboItemData.getPicUrls(),holder.gridLayout_pic,weiboItemData.getWeiboId());
+
+            }
         }else {
             holder.gridLayout_pic.setVisibility(View.GONE);
         }
@@ -182,10 +188,14 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             holder.textView_reTwitter_content.setTag(reTwitterWeibo.getWeiboId());
 
             if (reTwitterWeibo.hasPics()){
-                holder.gridLayout_reTwitter_pic.setVisibility(View.VISIBLE);
-                Log.d(TAG,"ReTwitter "+reTwitterUserData.getUserName()+" has pic nem = "+reTwitterWeibo.getPicUrls().getImageCount());
-                holder.gridLayout_reTwitter_pic.setTag(reTwitterWeibo.getWeiboId());
-                setGridImage(reTwitterWeibo.getPicUrls(),holder.gridLayout_reTwitter_pic,reTwitterWeibo.getWeiboId());
+                if (Settings.NO_IMAGE_ON_LTE&&WebTools.isUsingLTE()){
+                    //只有这种情况是不显示图片的
+                }else {
+                    holder.gridLayout_reTwitter_pic.setVisibility(View.VISIBLE);
+                    Log.d(TAG, "ReTwitter " + reTwitterUserData.getUserName() + " has pic nem = " + reTwitterWeibo.getPicUrls().getImageCount());
+                    holder.gridLayout_reTwitter_pic.setTag(reTwitterWeibo.getWeiboId());
+                    setGridImage(reTwitterWeibo.getPicUrls(), holder.gridLayout_reTwitter_pic, reTwitterWeibo.getWeiboId());
+                }
             }else {
                 holder.gridLayout_reTwitter_pic.setVisibility(View.GONE);
             }

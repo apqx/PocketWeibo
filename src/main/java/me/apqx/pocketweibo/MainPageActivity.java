@@ -39,9 +39,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import me.apqx.pocketweibo.service.NotifyReceiver;
+import me.apqx.pocketweibo.service.NotifyService;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
 import me.apqx.pocketweibo.struct.UserData;
 import me.apqx.pocketweibo.struct.WeiboItemData;
+import me.apqx.pocketweibo.tools.Settings;
 import me.apqx.pocketweibo.tools.Tools;
 import me.apqx.pocketweibo.tools.WebTools;
 
@@ -139,8 +142,17 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
             Intent intent=getIntent();
             //从登陆界面获得uid
             String uid=intent.getStringExtra("uid");
-            //启动时，首先从本地读取保存好的微博，如果本地不存在缓存文件，就从网络中读取
-            exec.execute(new TaskReadWeiboListFromLocal());
+            String fromService=intent.getAction();
+            if (fromService==NotifyService.ACTION_FROM_SERVICE){
+                //如果是用户点击Notification而启动的微博页面，应该立即联网刷新
+                if (!swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(true);
+                    exec.execute(new TaskLoadNewWeibo());
+                }
+            }else {
+                //启动时，首先从本地读取保存好的微博，如果本地不存在缓存文件，就从网络中读取
+                exec.execute(new TaskReadWeiboListFromLocal());
+            }
             //启动时，先从本地读取用户信息
             exec.execute(new TaskReadUserDataFromLocal(uid));
         }
@@ -154,7 +166,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         });
-
+        Settings settings=new Settings(this);
 
 
         setListener();
@@ -195,6 +207,8 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
     protected void onDestroy() {
         super.onDestroy();
         drawerLayout.removeDrawerListener(toggle);
+        Intent intent=new Intent(NotifyReceiver.ACTION_SHOUND_NOTIFY_WEIBO);
+        sendBroadcast(intent);
     }
 
     @Override
@@ -221,6 +235,18 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
 //            Log.d("apqx","StaggeredGridLayoutManager index = "+index[0]);
         }
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sendBroadcast(new Intent(NotifyReceiver.ACTION_SHOUND_NOT_NOTIFY_WEIBO));
     }
 
     @Override
