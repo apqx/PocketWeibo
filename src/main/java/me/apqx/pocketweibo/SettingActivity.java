@@ -87,6 +87,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 dialog.show();
                 dialog.setCanceledOnTouchOutside(true);
                 break;
+            
 
         }
     }

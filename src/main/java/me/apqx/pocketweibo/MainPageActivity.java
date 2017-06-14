@@ -1,8 +1,10 @@
 package me.apqx.pocketweibo;
 
+import android.app.IntentService;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -209,6 +211,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
         drawerLayout.removeDrawerListener(toggle);
         Intent intent=new Intent(NotifyReceiver.ACTION_SHOUND_NOTIFY_WEIBO);
         sendBroadcast(intent);
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -400,7 +403,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-
+    //这些内部类任务很快就会执行完成，不会存在内存泄漏
     private class TaskLoadNewWeibo implements Runnable{
         @Override
         public void run() {
