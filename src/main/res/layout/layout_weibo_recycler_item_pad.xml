@@ -71,7 +71,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="10dp"/>
 
-        <me.apqx.pocketweibo.view.LinkTextView
+        <me.apqx.pocketweibo.customView.LinkTextView
             android:id="@+id/textView_main_item_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
             android:layout_marginTop="10dp"
             android:background="?attr/reTwitterBgColor">
 
-            <me.apqx.pocketweibo.view.LinkTextView
+            <me.apqx.pocketweibo.customView.LinkTextView
                 android:id="@+id/textView_main_item_content_reTwitter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

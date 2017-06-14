@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo.tools;
+package me.apqx.pocketweibo.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -151,7 +151,7 @@ public class WebTools {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Tools.showToast(R.string.start_download_picture);
+                ViewTools.showToast(R.string.start_download_picture);
             }
         });
         try {
@@ -172,7 +172,7 @@ public class WebTools {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Tools.showToast(R.string.save_file_success);
+                    ViewTools.showToast(R.string.save_file_success);
                 }
             });
         }catch (IOException e){
@@ -180,7 +180,7 @@ public class WebTools {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Tools.showToast(R.string.save_file_failed);
+                    ViewTools.showToast(R.string.save_file_failed);
                 }
             });
         }finally {

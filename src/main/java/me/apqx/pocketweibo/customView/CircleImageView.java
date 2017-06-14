@@ -1,9 +1,7 @@
-package me.apqx.pocketweibo.view;
+package me.apqx.pocketweibo.customView;
 
 import android.content.Context;
-import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,9 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.support.v7.widget.AppCompatImageView;
-import android.util.Log;
-
-import me.apqx.pocketweibo.R;
 
 /**
  * Created by apqx on 2017/4/19.

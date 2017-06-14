@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo.tools;
+package me.apqx.pocketweibo.model;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -10,6 +10,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
 import android.util.Log;
+import android.widget.Toast;
+
+import me.apqx.pocketweibo.MyApplication;
 
 /**
  * Created by apqx on 2017/4/19.
@@ -17,6 +20,15 @@ import android.util.Log;
  */
 
 public class ViewTools {
+    private static Toast toast=Toast.makeText(MyApplication.getContext(),"",Toast.LENGTH_SHORT);
+    public static void showToast(String string){
+        toast.setText(string);
+        toast.show();
+    }
+    public static void showToast(int resId){
+        toast.setText(resId);
+        toast.show();
+    }
     /**
      * 将给定的Bitmap转化为一个圆形Bitmap
      * @param bitmap 指定的bitmap

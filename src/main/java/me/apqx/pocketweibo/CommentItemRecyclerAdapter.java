@@ -5,15 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.List;
 
-import me.apqx.pocketweibo.struct.CommentData;
-import me.apqx.pocketweibo.struct.UserData;
+import me.apqx.pocketweibo.bean.CommentData;
+import me.apqx.pocketweibo.bean.UserData;
 
 /**
  * Created by apqx on 2017/5/14.
@@ -23,7 +22,7 @@ import me.apqx.pocketweibo.struct.UserData;
 public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItemRecyclerAdapter.ViewHolder>{
     private int resource;
     private List<CommentData> list;
-
+    private OnRefreshOldCommentListener listener;
     public CommentItemRecyclerAdapter(int resource,List<CommentData> list) {
         super();
         this.resource=resource;
@@ -38,6 +37,9 @@ public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItem
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        if (position==getItemCount()-1&&listener!=null){
+            listener.onRefresh(list.get(position).getCommentId());
+        }
         CommentData commentData=list.get(position);
         UserData userData=commentData.getUserData();
         holder.imageView_head.setImageURI(userData.getUserHeadPicURL());
@@ -79,5 +81,11 @@ public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItem
                     break;
             }
         }
+    }
+    public interface OnRefreshOldCommentListener{
+        void onRefresh(String commentId);
+    }
+    public void setOnRefreshOldCommentListener(OnRefreshOldCommentListener listener){
+        this.listener=listener;
     }
 }

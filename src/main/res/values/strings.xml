@@ -41,5 +41,9 @@
     <string name="image_on_lte">流量下不加载图片</string>
     <string name="about">关于</string>
     <string name="Logout">注销</string>
+    <string name="saveWeiboDataFailed">保存微博数据失败</string>
+    <string name="save_userdata_failed">保存用户信息失败</string>
+    <string name="comment_failed">评论失败</string>
+    <string name="commentSuccess">评论成功</string>
 
 </resources>

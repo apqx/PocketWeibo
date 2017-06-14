@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo.view;
+package me.apqx.pocketweibo.customView;
 
 import android.app.Activity;
 

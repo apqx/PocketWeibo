@@ -1,11 +1,15 @@
-package me.apqx.pocketweibo.struct;
+package me.apqx.pocketweibo.bean;
 
-import android.text.TextUtils;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import me.apqx.pocketweibo.tools.Tools;
+import java.util.List;
+
+import me.apqx.pocketweibo.struct.ParseJsonTools;
+import me.apqx.pocketweibo.model.Tools;
 
 /**
  * Created by apqx on 2017/5/6.
@@ -13,17 +17,29 @@ import me.apqx.pocketweibo.tools.Tools;
  */
 
 public class WeiboItemData {
+    private boolean isNull;
+    @SerializedName("created_at")
     private String createTime;
+    @SerializedName("source")
     private String device;
+    @SerializedName("text")
     private String content;
+    @SerializedName("reposts_count")
     private String rePostCount;
+    @SerializedName("comments_count")
     private String commentCount;
+    @SerializedName("attitudes_count")
     private String likeCount;
+    @SerializedName("id")
     private String weiboId;
+    @SerializedName("favorited")
     private boolean favorited;
+    @SerializedName("retweeted_status")
     private WeiboItemData reTwitterWeibo;
+    @SerializedName("user")
     private UserData weiboUserData;
-    private PicUrls picUrls;
+    @SerializedName("pic_urls")
+    private List<PicUrl> picUrls;
     private WeiboItemData(Builder builder){
         this.createTime=builder.createTime;
         this.device=builder.device;
@@ -37,12 +53,20 @@ public class WeiboItemData {
         this.weiboUserData=builder.weiboUserData;
         this.picUrls=builder.picUrls;
     }
+    public void setNull(){
+        isNull=true;
+    }
+
+    public boolean isNull(){
+        return isNull;
+    }
+
     public boolean hasReTwitter(){
         return reTwitterWeibo!=null;
     }
 
     public boolean hasPics(){
-        return picUrls!=null;
+        return picUrls!=null&&picUrls.size()>0;
     }
 
     public String getDevice() {
@@ -90,33 +114,14 @@ public class WeiboItemData {
     }
 
     public PicUrls getPicUrls() {
-        return picUrls;
+        return new PicUrls(picUrls);
     }
 
     @Override
     public String toString() {
-        JSONObject jsonObject=null;
-        try {
-            jsonObject=new JSONObject();
-            jsonObject.put(ParseJsonTools.CREATE_TIME,createTime);
-            jsonObject.put(ParseJsonTools.DEVICE,device);
-            jsonObject.put(ParseJsonTools.CONTENT,content);
-            jsonObject.put(ParseJsonTools.REPOST_COUNT,rePostCount);
-            jsonObject.put(ParseJsonTools.COMMENT_COUNT,commentCount);
-            jsonObject.put(ParseJsonTools.LIKE_COUNT,likeCount);
-            jsonObject.put(ParseJsonTools.WEIBO_ID,weiboId);
-            jsonObject.put(ParseJsonTools.ISFAVORITED,favorited);
-            jsonObject.put(ParseJsonTools.USER,ParseJsonTools.getJSONObjectFromString(weiboUserData.toString()));
-            if (hasReTwitter()){
-                jsonObject.put(ParseJsonTools.RETWITTER,ParseJsonTools.getJSONObjectFromString(reTwitterWeibo.toString()));
-            }
-            if (hasPics()){
-                jsonObject.put(ParseJsonTools.IMAGES_SMALL,ParseJsonTools.getImagesFromString(picUrls.toString()));
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return jsonObject.toString();
+        Gson gson=new Gson();
+        String json=gson.toJson(this);
+        return json;
     }
 
     public static class Builder{
@@ -131,7 +136,7 @@ public class WeiboItemData {
         private boolean favorited;
         private WeiboItemData reTwitterWeibo;
         private UserData weiboUserData;
-        private PicUrls picUrls;
+        private List<PicUrl> picUrls;
         public Builder setCreateTime(String createTime){
             this.createTime=createTime;
             return this;
@@ -182,7 +187,7 @@ public class WeiboItemData {
             return this;
         }
 
-        public Builder setPicUrls(PicUrls picUrls) {
+        public Builder setPicUrls(List<PicUrl> picUrls) {
             this.picUrls = picUrls;
             return this;
         }

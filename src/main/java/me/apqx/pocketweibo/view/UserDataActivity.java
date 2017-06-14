@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo;
+package me.apqx.pocketweibo.view;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,13 +27,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import me.apqx.pocketweibo.AppThreadPool;
+import me.apqx.pocketweibo.Constant;
+import me.apqx.pocketweibo.MyApplication;
+import me.apqx.pocketweibo.R;
+import me.apqx.pocketweibo.WeiboItemRecyclerAdapter;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
-import me.apqx.pocketweibo.struct.UserData;
-import me.apqx.pocketweibo.struct.WeiboItemData;
-import me.apqx.pocketweibo.tools.Tools;
-import me.apqx.pocketweibo.tools.WebTools;
-import me.apqx.pocketweibo.view.SwipeActivityHelper;
-import me.apqx.pocketweibo.view.SwipeActivityLayout;
+import me.apqx.pocketweibo.bean.UserData;
+import me.apqx.pocketweibo.bean.WeiboItemData;
+import me.apqx.pocketweibo.model.ViewTools;
+import me.apqx.pocketweibo.model.WebTools;
+import me.apqx.pocketweibo.customView.SwipeActivityHelper;
+import me.apqx.pocketweibo.customView.SwipeActivityLayout;
 
 /**
  * Created by apqx on 2017/5/16.
@@ -97,7 +102,7 @@ public class UserDataActivity extends AppCompatActivity {
         handler=new DataHandler();
         Intent intent=getIntent();
         String userName=intent.getStringExtra("apqx");
-        userData=MainPageActivity.getUserData(userName);
+        userData= MainPageActivity.getUserData(userName);
         if (userData==null){
             //这时应该联网查询
             exec.execute(new TaskGetUserDataFromWeb(userName));
@@ -142,7 +147,7 @@ public class UserDataActivity extends AppCompatActivity {
                 //说明申请权限成功
                 WebTools.startDownLoadPics(handler);
             }else {
-                Tools.showToast(getString(R.string.permission_denied));
+                ViewTools.showToast(getString(R.string.permission_denied));
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -180,10 +185,10 @@ public class UserDataActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     break;
                 case TYPE_GET_USERDATA_FROM_WEB_ERROR:
-                    Tools.showToast(R.string.refresh_userdata_failed);
+                    ViewTools.showToast(R.string.refresh_userdata_failed);
                     break;
                 case TYPE_GET_WEIBO_FROM_WEB_ERROR:
-                    Tools.showToast(R.string.refresh_weibo_failed);
+                    ViewTools.showToast(R.string.refresh_weibo_failed);
                     break;
                 default:break;
             }
@@ -197,7 +202,7 @@ public class UserDataActivity extends AppCompatActivity {
         }
         @Override
         public void run() {
-            String urlString="https://api.weibo.com/2/statuses/user_timeline.json?access_token="+Constant.accessToken.getToken()+"&screen_name="+userName;
+            String urlString="https://api.weibo.com/2/statuses/user_timeline.json?access_token="+ Constant.accessToken.getToken()+"&screen_name="+userName;
             String weiboJson= WebTools.getWebString(urlString);
             if (weiboJson==null){
                 //从网络中读取错误

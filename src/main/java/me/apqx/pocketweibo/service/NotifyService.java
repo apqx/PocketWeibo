@@ -8,8 +8,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.Message;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -21,12 +19,12 @@ import java.util.concurrent.ExecutorService;
 
 import me.apqx.pocketweibo.AppThreadPool;
 import me.apqx.pocketweibo.Constant;
-import me.apqx.pocketweibo.MainPageActivity;
+import me.apqx.pocketweibo.view.MainPageActivity;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
-import me.apqx.pocketweibo.tools.Settings;
-import me.apqx.pocketweibo.tools.Tools;
-import me.apqx.pocketweibo.tools.WebTools;
+import me.apqx.pocketweibo.model.Settings;
+import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.WebTools;
 
 /**
  * Created by apqx on 2017/6/8.
@@ -104,18 +102,6 @@ public class NotifyService extends Service {
         });
 
 
-//        Notification.Builder builder=new Notification.Builder(NotifyService.this);
-//        Intent newIntent=new Intent(NotifyService.this,MainPageActivity.class);
-//        newIntent.setAction(ACTION_FROM_SERVICE);
-//        PendingIntent newPendingIntent=PendingIntent.getActivity(NotifyService.this,1,newIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-//        builder.setContentText("有新的微博")
-//                .setContentTitle("口袋微博")
-//                .setSmallIcon(R.mipmap.ic_launcher)
-//                .setContentIntent(newPendingIntent)
-//                .setDefaults(Notification.DEFAULT_ALL);
-//        Notification notification=builder.build();
-//        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        notificationManager.notify(1,notification);
         stopSelf();
         return super.onStartCommand(intent, flags, startId);
     }

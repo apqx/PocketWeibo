@@ -1,23 +1,15 @@
 package me.apqx.pocketweibo;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
-import me.apqx.pocketweibo.view.SwipeActivityHelper;
-import me.apqx.pocketweibo.view.SwipeActivityLayout;
+import me.apqx.pocketweibo.customView.SwipeActivityHelper;
 
 /**
  * Created by apqx on 2017/5/17.

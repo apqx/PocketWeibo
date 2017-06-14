@@ -1,7 +1,5 @@
 package me.apqx.pocketweibo.struct;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,47 +7,51 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.apqx.pocketweibo.tools.Tools;
+import me.apqx.pocketweibo.bean.CommentData;
+import me.apqx.pocketweibo.bean.PicUrl;
+import me.apqx.pocketweibo.bean.PicUrls;
+import me.apqx.pocketweibo.bean.UserData;
+import me.apqx.pocketweibo.bean.WeiboItemData;
 
 /**
  * Created by apqx on 2017/5/10.
  */
 
 public class ParseJsonTools {
-    static final String TAG="ParseJsonTools";
-    static final String USER="user";
-    static final String RETWITTER="retweeted_status";
-    static final String DEVICE="source";
-    static final String CONTENT="text";
-    static final String CREATE_TIME="created_at";
-    static final String LIKE_COUNT="attitudes_count";
-    static final String ISFAVORITED="favorited";
-    static final String REPOST_COUNT="reposts_count";
-    static final String COMMENT_COUNT="comments_count";
-    static final String WEIBO_ID="id";
-    static final String IMAGES_SMALL="pic_urls";
-    static final String IMAGE_SMALL="thumbnail_pic";
+    public static final String TAG="ParseJsonTools";
+    public static final String USER="user";
+    public static final String RETWITTER="retweeted_status";
+    public static final String DEVICE="source";
+    public static final String CONTENT="text";
+    public static final String CREATE_TIME="created_at";
+    public static final String LIKE_COUNT="attitudes_count";
+    public static final String ISFAVORITED="favorited";
+    public static final String REPOST_COUNT="reposts_count";
+    public static final String COMMENT_COUNT="comments_count";
+    public static final String WEIBO_ID="id";
+    public static final String IMAGES_SMALL="pic_urls";
+    public static final String IMAGE_SMALL="thumbnail_pic";
 
 
-    static final String MALE="m";
-    static final String FEMALE="f";
-    static final String USERNAME="screen_name";
-    static final String USER_HEAD_PIC_URL="avatar_large";
-    static final String PROFILE_BG_URL="cover_image_phone";
-    static final String PROFILE_DESCRIPTION="description";
-    static final String LOCATION="location";
-    static final String FOLLOWING_COUNT="friends_count";
-    static final String FOLLOWERS_COUNT="followers_count";
-    static final String WEBSITE_URL="domain";
-    static final String GENDER="gender";
-    static final String ISFOLLOWING="following";
-    static final String USER_ID="id";
+    public static final String MALE="m";
+    public static final String FEMALE="f";
+    public static final String USERNAME="screen_name";
+    public static final String USER_HEAD_PIC_URL="avatar_large";
+    public static final String PROFILE_BG_URL="cover_image_phone";
+    public static final String PROFILE_DESCRIPTION="description";
+    public static final String LOCATION="location";
+    public static final String FOLLOWING_COUNT="friends_count";
+    public static final String FOLLOWERS_COUNT="followers_count";
+    public static final String WEBSITE_URL="domain";
+    public static final String GENDER="gender";
+    public static final String ISFOLLOWING="following";
+    public static final String USER_ID="id";
 
 
-    static final String COMMENTS="text";
-    static final String COMMENT_ID="id";
-    static final String COMMENT_TIME="created_at";
-    static final String COMMENT_DEVICE="source";
+    public static final String COMMENTS="text";
+    public static final String COMMENT_ID="id";
+    public static final String COMMENT_TIME="created_at";
+    public static final String COMMENT_DEVICE="source";
 
     public static WeiboItemData getWeiboFromJson(JSONObject jsonObject){
         WeiboItemData.Builder builder=new WeiboItemData.Builder();
@@ -145,21 +147,21 @@ public class ParseJsonTools {
         return jsonArray;
     }
 
-    public static PicUrls getPicUrlsFromJsonArray(JSONArray jsonArray){
-        List<String> list=new ArrayList<String>();
+    public static List<PicUrl> getPicUrlsFromJsonArray(JSONArray jsonArray){
+        List<PicUrl> list=new ArrayList<PicUrl>();
         if (jsonArray.length()==0){
             return null;
         }
         try {
             for (int i=0;i<jsonArray.length();i++){
                 JSONObject jsonObject=jsonArray.getJSONObject(i);
-                list.add(jsonObject.getString(IMAGE_SMALL));
+                list.add(new PicUrl(jsonObject.getString(IMAGE_SMALL)));
             }
 
         }catch (JSONException e){
             e.printStackTrace();
         }
-        return new PicUrls(list);
+        return list;
     }
 
 }

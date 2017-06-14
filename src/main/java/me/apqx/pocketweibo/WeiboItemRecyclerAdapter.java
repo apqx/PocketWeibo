@@ -2,27 +2,20 @@ package me.apqx.pocketweibo;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Animatable;
-import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -41,14 +34,16 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.apqx.pocketweibo.struct.PicUrls;
-import me.apqx.pocketweibo.struct.UserData;
-import me.apqx.pocketweibo.struct.WeiboItemData;
-import me.apqx.pocketweibo.tools.Settings;
-import me.apqx.pocketweibo.tools.Tools;
-import me.apqx.pocketweibo.tools.ViewTools;
-import me.apqx.pocketweibo.tools.WebTools;
-import me.apqx.pocketweibo.view.LinkTextView;
+import me.apqx.pocketweibo.bean.PicUrls;
+import me.apqx.pocketweibo.bean.UserData;
+import me.apqx.pocketweibo.bean.WeiboItemData;
+import me.apqx.pocketweibo.model.Settings;
+import me.apqx.pocketweibo.model.ViewTools;
+import me.apqx.pocketweibo.model.WebTools;
+import me.apqx.pocketweibo.customView.LinkTextView;
+import me.apqx.pocketweibo.presenter.DownloadPresenter;
+import me.apqx.pocketweibo.view.UserDataActivity;
+import me.apqx.pocketweibo.view.WeiboDetailActivity;
 import me.relex.photodraweeview.PhotoDraweeView;
 
 /**
@@ -58,12 +53,13 @@ import me.relex.photodraweeview.PhotoDraweeView;
 
 public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecyclerAdapter.MyViewHolder> {
     private static final String TAG="WeiboItemAdapter";
-    static final int WEIBO_MAINPAGE_LIST=0;
-    static final int WEIBO_DETAIL=1;
-    static final int WEIBO_USER_PAGE=2;
-    static final int ITEM_NORMAL=3;
-    static final int ITEM_FOOTER=4;
+    public static final int WEIBO_MAINPAGE_LIST=0;
+    public static final int WEIBO_DETAIL=1;
+    public static final int WEIBO_USER_PAGE=2;
+    public static final int ITEM_NORMAL=3;
+    public static final int ITEM_FOOTER=4;
 
+    private DownloadPresenter downloadPresenter;
     private List<WeiboItemData> list;
     private int resource;
     private int weiboType;
@@ -82,6 +78,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         this.weiboType=weiboType;
         handler=new Handler();
         this.activity=activity;
+        downloadPresenter=new DownloadPresenter();
     }
 
     @Override
@@ -412,12 +409,6 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-//                case R.id.btn_main_item_expand:
-//                    weiboId = v.getTag().toString();
-//                    //此时应该弹出窗口
-//                    v.animate().setDuration(500).rotation(180).start();
-//                    showWeiboItemExpandWindow(v, weiboId);
-//                    break;
                 case R.id.textView_main_item_content:
                     weiboId = v.getTag().toString();
                     LinkTextView linkTextView = (LinkTextView) v;
@@ -537,34 +528,34 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                     //因为点击此之前一定点击btn_main_item_expand，所以可以获得微博ID
                     //根据本地内存数据判断当前状态，联网请求改变状态，如果成功，则同时改变本地保存的状态
                     if (weiboItemData==null){
-                        Tools.showToast("Error");
+                        ViewTools.showToast("Error");
                         break;
                     }
                     if (weiboItemData.isFavorited()){
                         //如果已经被收藏了
-                        Tools.showToast(R.string.remove_from_favorite);
+                        ViewTools.showToast(R.string.remove_from_favorite);
                         holder.btnSavePost.setImageResource(R.drawable.icon_unstar);
                         holder.textView_SavePost.setText(R.string.save_post);
                     }else {
                         //如果没有被收藏
-                        Tools.showToast(R.string.add_to_favorite);
+                        ViewTools.showToast(R.string.add_to_favorite);
                         holder.btnSavePost.setImageResource(R.drawable.icon_star);
                         holder.textView_SavePost.setText(R.string.unsave_post);
                     }
                     break;
                 case R.id.linearLayout_unFollow:
                     if (weiboItemData==null){
-                        Tools.showToast("Error");
+                        ViewTools.showToast("Error");
                         break;
                     }
                     if (weiboItemData.getWeiboUserData().isFollowed()){
                         //如果已经关注了此人
-                        Tools.showToast(R.string.unfollow_success);
+                        ViewTools.showToast(R.string.unfollow_success);
                         holder.btnUnFollow.setImageResource(R.drawable.icon_unfollow);
                         holder.textView_UnFollow.setText(R.string.follow);
                     }else {
                         //如果没有关注此人
-                        Tools.showToast(R.string.follow_success);
+                        ViewTools.showToast(R.string.follow_success);
                         holder.btnUnFollow.setImageResource(R.drawable.icon_follow);
                         holder.textView_UnFollow.setText(R.string.unfollow);
                     }
@@ -614,8 +605,8 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                         //在这里判断是否有存储权限，有的话直接下载当前图片，否则申请权限，回调方法确认授权后，开始下载
                         if (ContextCompat.checkSelfPermission(activity,Manifest.permission.WRITE_EXTERNAL_STORAGE)==PackageManager.PERMISSION_GRANTED){
                             Log.d(TAG,"has permission");
-                            Constant.urlList.add(urlString);
-                            WebTools.startDownLoadPics(handler);
+//                            WebTools.startDownLoadPics(handler);
+                            downloadPresenter.downloadPicture(urlString);
                         }else {
                             Log.d(TAG,"no permission");
                             Constant.urlList.add(urlString);
@@ -642,7 +633,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         this.onCommentClickListener=onCommentClickListener;
     }
 
-    interface OnCommentClickListener{
+    public interface OnCommentClickListener{
         void commentClick();
     }
 
@@ -691,7 +682,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         this.refreshDownListener=refreshDownListener;
     }
 
-    interface OnRefreshDownListener{
+    public interface OnRefreshDownListener{
         void refreshDown();
 
     }

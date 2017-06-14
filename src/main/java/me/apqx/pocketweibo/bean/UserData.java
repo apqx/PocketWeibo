@@ -1,23 +1,40 @@
-package me.apqx.pocketweibo.struct;
+package me.apqx.pocketweibo.bean;
+
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import me.apqx.pocketweibo.struct.ParseJsonTools;
 
 /**
  * Created by apqx on 2017/5/6.
  */
 
 public class UserData {
+    private boolean isNull;
+    @SerializedName("screen_name")
     private String userName;
+    @SerializedName("avatar_large")
     private String userHeadPicURL;
+    @SerializedName("cover_image_phone")
     private String profileBGUrl;
+    @SerializedName("description")
     private String profileDescription;
+    @SerializedName("location")
     private String location;
+    @SerializedName("friends_count")
     private String followingCount;
+    @SerializedName("followers_count")
     private String followerCount;
+    @SerializedName("domain")
     private String websiteUrl;
+    @SerializedName("gender")
     private String gender;
+    @SerializedName("id")
     private String userId;
+    @SerializedName("following")
     private boolean isFollowed;
     public UserData(Builder builder){
         this.userName=builder.userName;
@@ -32,6 +49,14 @@ public class UserData {
         this.isFollowed=builder.isFollowed;
         this.userId=builder.userId;
     }
+    public UserData(boolean isNull){
+        this.isNull=isNull;
+    }
+
+    public boolean isNull() {
+        return isNull;
+    }
+
     public String getUserName() {
         return userName;
     }
@@ -41,7 +66,7 @@ public class UserData {
     }
 
     public String getProfileBGUrl() {
-        if (profileBGUrl.contains(";")){
+        if (profileBGUrl!=null&&profileBGUrl.contains(";")){
             return profileBGUrl.split(";")[0];
         }
         return profileBGUrl;
@@ -81,25 +106,9 @@ public class UserData {
 
     @Override
     public String toString() {
-        JSONObject jsonObject=null;
-        try {
-            jsonObject=new JSONObject();
-            jsonObject.put(ParseJsonTools.USERNAME,userName);
-            jsonObject.put(ParseJsonTools.USER_HEAD_PIC_URL,userHeadPicURL);
-            jsonObject.put(ParseJsonTools.PROFILE_BG_URL,profileBGUrl);
-            jsonObject.put(ParseJsonTools.PROFILE_DESCRIPTION,profileDescription);
-            jsonObject.put(ParseJsonTools.LOCATION,location);
-            jsonObject.put(ParseJsonTools.FOLLOWING_COUNT,followingCount);
-            jsonObject.put(ParseJsonTools.FOLLOWERS_COUNT,followerCount);
-            jsonObject.put(ParseJsonTools.WEBSITE_URL,websiteUrl);
-            jsonObject.put(ParseJsonTools.GENDER,gender);
-            jsonObject.put(ParseJsonTools.ISFOLLOWING,isFollowed);
-            jsonObject.put(ParseJsonTools.USER_ID,userId);
-
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return jsonObject.toString();
+        Gson gson=new Gson();
+        String string=gson.toJson(this);
+        return string;
     }
 
     public static class Builder{

@@ -1,10 +1,11 @@
-package me.apqx.pocketweibo.tools;
+package me.apqx.pocketweibo.model;
 
-import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,10 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.apqx.pocketweibo.MyApplication;
-import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
-import me.apqx.pocketweibo.struct.UserData;
-import me.apqx.pocketweibo.struct.WeiboItemData;
+import me.apqx.pocketweibo.bean.UserData;
+import me.apqx.pocketweibo.bean.WeiboItemData;
 
 /**
  * Created by apqx on 2017/5/3.
@@ -36,16 +36,7 @@ import me.apqx.pocketweibo.struct.WeiboItemData;
 
 public class Tools {
     private static final String TAG="Tools";
-    private static Toast toast=Toast.makeText(MyApplication.getContext(),"",Toast.LENGTH_SHORT);
-    public static void showToast(String string){
-        toast.setText(string);
-        toast.show();
-    }
     public static void init(){}
-    public static void showToast(int resId){
-        toast.setText(resId);
-        toast.show();
-    }
     public static void closeStream(Object object){
         InputStream inputStream=null;
         OutputStream outputStream=null;
@@ -85,7 +76,8 @@ public class Tools {
         }
     }
 
-    public static void saveFileToLocal(String content,String fileName){
+    public static boolean saveFileToLocal(String content,String fileName){
+        boolean success=true;
         File file=new File(MyApplication.getContext().getExternalFilesDir(null),fileName);
         PrintStream printStream=null;
         try {
@@ -94,9 +86,11 @@ public class Tools {
         }catch (IOException e){
             e.printStackTrace();
             Log.d(TAG,"save temp file failed");
+            success=false;
         }finally {
             closeStream(printStream);
         }
+        return success;
     }
     public static String readStringFromLocal(String fileName){
         File file=new File(MyApplication.getContext().getExternalFilesDir(null),fileName);
@@ -135,57 +129,62 @@ public class Tools {
         return device;
     }
 
-    public static void saveWeiboListToLocal(List<WeiboItemData> list){
-        JSONArray jsonArray=new JSONArray();
-        try {
-            for (int i=0;i<list.size();i++){
-                JSONObject jsonObject=new JSONObject(list.get(i).toString());
-                jsonArray.put(jsonObject);
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        saveFileToLocal(jsonArray.toString(),"WeiboListCache.json");
+    public static boolean saveWeiboListToLocal(List<WeiboItemData> list){
+        Gson gson=new Gson();
+        String jsonArray=gson.toJson(list);
+        boolean success=saveFileToLocal(jsonArray,"WeiboListCache.json");
         Log.d(TAG,"saveWeiboListToLocal num = "+list.size());
+        return success;
     }
 
     public static List<WeiboItemData> readWeiboListFromLocal(){
-        List<WeiboItemData> list=new ArrayList<WeiboItemData>();
         String string=readStringFromLocal("WeiboListCache.json");
+        Gson gson=new Gson();
         if (string==null){
-            Log.d(TAG,"readWeiboListFromLocal num = null");
-            return null;
+            return new ArrayList<WeiboItemData>();
         }
-        try{
-            JSONArray jsonArray=new JSONArray(string);
-            if (jsonArray!=null&&jsonArray.length()>0){
-                for (int i=0;i<jsonArray.length();i++){
-                    list.add(ParseJsonTools.getWeiboFromJson(jsonArray.getJSONObject(i)));
-                }
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        Log.d(TAG,"readWeiboListFromLocal num = "+list.size());
+        List<WeiboItemData> list=gson.fromJson(string,new TypeToken<List<WeiboItemData>>(){}.getType());
         return list;
     }
     //获取本地保存的最新的微博id
     public static String getLastWeiboId(){
         return readWeiboListFromLocal().get(0).getWeiboId();
     }
-    public static void saveUserDataToLocal(UserData userData){
-        saveFileToLocal(userData.toString(),userData.getUserId()+".json");
+    public static boolean saveUserDataToLocal(UserData userData){
+        Boolean success;
+        success=saveFileToLocal(userData.toString(),userData.getUserId()+".json");
         Log.d(TAG,"save userdata to local username is "+userData.getUserName()+" id is "+userData.getUserId());
+        return success;
     }
     public static UserData readUserDataFromLocal(String userId){
         String string=readStringFromLocal(userId+".json");
         if (string==null){
             Log.d(TAG,"read userdata from local failed");
-            return null;
+            return new UserData(true);
         }
-        UserData userData=ParseJsonTools.getUserDataFromJson(ParseJsonTools.getJSONObjectFromString(string));
+        Gson gson=new Gson();
+        UserData userData=gson.fromJson(string,UserData.class);
         Log.d(TAG,"read userdata from local succeed");
         return userData;
+    }
+    public static boolean saveFileToLocalFromStream(File file,InputStream inputStream){
+        boolean isSuccess=true;
+        OutputStream outputStream=null;
+        try {
+            outputStream=new FileOutputStream(file);
+            byte[] temp=new byte[1024];
+            int length;
+            while ((length=inputStream.read(temp))!=-1){
+                outputStream.write(temp,0,length);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+            isSuccess=false;
+        }finally {
+            closeStream(inputStream);
+            closeStream(outputStream);
+        }
+        return isSuccess;
     }
 
 

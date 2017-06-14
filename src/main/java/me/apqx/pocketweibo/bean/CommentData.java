@@ -1,16 +1,23 @@
-package me.apqx.pocketweibo.struct;
+package me.apqx.pocketweibo.bean;
 
-import me.apqx.pocketweibo.tools.Tools;
+import com.google.gson.annotations.SerializedName;
+
+import me.apqx.pocketweibo.model.Tools;
 
 /**
  * Created by apqx on 2017/5/14.
  */
 
 public class CommentData {
+    @SerializedName("user")
     private UserData userData;
+    @SerializedName("text")
     private String comment;
+    @SerializedName("created_at")
     private String commentTime;
+    @SerializedName("id")
     private String commentId;
+    @SerializedName("source")
     private String device;
     //我暂时无法获取评论的点赞数
     private String likeCount;

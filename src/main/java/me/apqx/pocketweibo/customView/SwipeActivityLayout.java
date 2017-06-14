@@ -1,23 +1,16 @@
-package me.apqx.pocketweibo.view;
+package me.apqx.pocketweibo.customView;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.TimeUtils;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Scroller;
-
-import me.apqx.pocketweibo.R;
 
 /**
  * Created by apqx on 2017/5/17.

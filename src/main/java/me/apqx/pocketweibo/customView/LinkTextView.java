@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo.view;
+package me.apqx.pocketweibo.customView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,16 +16,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.apqx.pocketweibo.R;
-import me.apqx.pocketweibo.UserDataActivity;
-import me.apqx.pocketweibo.struct.UserData;
-import me.apqx.pocketweibo.tools.Tools;
-
-import static android.content.Intent.ACTION_VIEW;
+import me.apqx.pocketweibo.view.UserDataActivity;
 
 /**
  * Created by apqx on 2017/5/5.

@@ -1,12 +1,10 @@
 package me.apqx.pocketweibo;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -14,10 +12,9 @@ import android.widget.TextView;
 
 import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 
-import me.apqx.pocketweibo.tools.Settings;
-import me.apqx.pocketweibo.tools.WebTools;
-import me.apqx.pocketweibo.view.SwipeActivityHelper;
-import me.apqx.pocketweibo.view.SwipeActivityLayout;
+import me.apqx.pocketweibo.model.Settings;
+import me.apqx.pocketweibo.customView.SwipeActivityHelper;
+import me.apqx.pocketweibo.customView.SwipeActivityLayout;
 
 /**
  * Created by apqx on 2017/6/4.

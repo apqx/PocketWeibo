@@ -1,7 +1,6 @@
-package me.apqx.pocketweibo;
+package me.apqx.pocketweibo.view;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -18,10 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethod;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -36,19 +32,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import me.apqx.pocketweibo.struct.CommentData;
+import me.apqx.pocketweibo.AppThreadPool;
+import me.apqx.pocketweibo.CommentItemRecyclerAdapter;
+import me.apqx.pocketweibo.Constant;
+import me.apqx.pocketweibo.MyApplication;
+import me.apqx.pocketweibo.R;
+import me.apqx.pocketweibo.RecyclerItemDecor;
+import me.apqx.pocketweibo.WeiboItemRecyclerAdapter;
+import me.apqx.pocketweibo.bean.CommentData;
+import me.apqx.pocketweibo.presenter.DownloadPresenter;
+import me.apqx.pocketweibo.presenter.IDownloadPresenter;
+import me.apqx.pocketweibo.presenter.IWeiboDetailPresenter;
+import me.apqx.pocketweibo.presenter.WeiboDetailPresenter;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
-import me.apqx.pocketweibo.struct.WeiboItemData;
-import me.apqx.pocketweibo.tools.Tools;
-import me.apqx.pocketweibo.tools.WebTools;
-import me.apqx.pocketweibo.view.SwipeActivityHelper;
-import me.apqx.pocketweibo.view.SwipeActivityLayout;
+import me.apqx.pocketweibo.bean.WeiboItemData;
+import me.apqx.pocketweibo.model.ViewTools;
+import me.apqx.pocketweibo.model.WebTools;
+import me.apqx.pocketweibo.customView.SwipeActivityHelper;
+import me.apqx.pocketweibo.customView.SwipeActivityLayout;
 
 /**
  * Created by apqx on 2017/5/9.
  */
 
-public class WeiboDetailActivity extends AppCompatActivity {
+public class WeiboDetailActivity extends AppCompatActivity implements IWeiboDetailView{
     private static final String TAG="WeiboDetailActivity";
     private static final int NOTIFY_LIKE=0;
     private static final int NOTIFY_COMMENT=1;
@@ -58,7 +65,6 @@ public class WeiboDetailActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ExecutorService exec;
-    private Handler handler;
     private RadioButton radioLikes;
     private RadioButton radioComment;
     private RadioButton radioRepost;
@@ -73,9 +79,14 @@ public class WeiboDetailActivity extends AppCompatActivity {
     private WeiboItemData weiboItemData;
     private SwipeActivityHelper swipeActivityHelper;
     private String weiboID;
+
+    private IWeiboDetailPresenter weiboDetailPresenter;
+    private IDownloadPresenter downloadPresenter;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        weiboDetailPresenter=new WeiboDetailPresenter(this);
+        downloadPresenter=new DownloadPresenter();
         if (MyApplication.getMyTheme()==MyApplication.THEME_DARK){
             setTheme(R.style.AppTheme_Dark_Transparent);
         }else {
@@ -129,13 +140,19 @@ public class WeiboDetailActivity extends AppCompatActivity {
         recyclerViewComment.setLayoutManager(commentLayoutManager);
         recyclerViewComment.addItemDecoration(new RecyclerItemDecor());
         recyclerViewComment.setAdapter(commentItemRecyclerAdapter);
-        handler=new DataHandler();
-        exec.execute(new TaskReadNewComment(weiboID));
+        weiboDetailPresenter.refreshNewComment(weiboID);
 
         weiboItemRecyclerAdapter.setOnCommentClickListener(new WeiboItemRecyclerAdapter.OnCommentClickListener() {
             @Override
             public void commentClick() {
                 popUpToComment(weiboID);
+            }
+        });
+        commentItemRecyclerAdapter.setOnRefreshOldCommentListener(new CommentItemRecyclerAdapter.OnRefreshOldCommentListener() {
+            @Override
+            public void onRefresh(String commentId) {
+                String maxId=Long.parseLong(commentId)-1+"";
+                weiboDetailPresenter.refreshOldComment(weiboID,maxId);
             }
         });
 
@@ -168,41 +185,29 @@ public class WeiboDetailActivity extends AppCompatActivity {
         if (requestCode==0){
             if (grantResults.length>0&&grantResults[0]== PackageManager.PERMISSION_GRANTED){
                 //说明申请权限成功
-                WebTools.startDownLoadPics(handler);
+                if (Constant.urlList.size()>0){
+                    for (String urlString:Constant.urlList){
+                        downloadPresenter.downloadPicture(urlString);
+                    }
+                }
             }else {
-                Tools.showToast(getString(R.string.permission_denied));
+                ViewTools.showToast(getString(R.string.permission_denied));
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private class DataHandler extends Handler{
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.arg1){
-                case NOTIFY_COMMENT:
-                    commentItemRecyclerAdapter.notifyDataSetChanged();
-                    break;
-                case NOTIFY_LIKE:
-                    break;
-                case NOTIFY_REPOST:
-                    break;
-                case SEND_COMMENT_ERROR:
-                    Tools.showToast(getString(R.string.operation_failed));
-                    break;
-                case SEND_COMMENT_SUCCESS:
-                    Tools.showToast(getString(R.string.operation_success));
-                    long commentCount=Long.parseLong(weiboItemData.getCommentCount())+1;
-                    weiboItemData.setCommentCount(String.valueOf(commentCount));
-                    radioComment.setText(WeiboDetailActivity.this.getString(R.string.weibo_item_comment)+" "+commentCount);
-                    commentItemRecyclerAdapter.notifyDataSetChanged();
-                    break;
-                default:break;
-            }
+    @Override
+    public void notifyCommentListChanged(List<CommentData> list,boolean isNew) {
+        if (isNew){
+            listComments.clear();
+            listComments.addAll(list);
+        }else {
+            listComments.addAll(list);
         }
-    }
+        commentItemRecyclerAdapter.notifyDataSetChanged();
 
+    }
 
     private void popUpToComment(final String weiboID){
         //应该弹出评论窗口
@@ -243,13 +248,13 @@ public class WeiboDetailActivity extends AppCompatActivity {
             }catch (UnsupportedEncodingException e){
                 e.printStackTrace();
             }
-            String post="access_token="+Constant.accessToken.getToken()+"&comment="+comment+"&id="+id;
+            String post="access_token="+ Constant.accessToken.getToken()+"&comment="+comment+"&id="+id;
             String newComment=WebTools.postWebString(urlString,post);
             if (newComment==null){
                 //说明网络错误
                 Message message=new Message();
                 message.arg1=SEND_COMMENT_ERROR;
-                handler.sendMessage(message);
+//                handler.sendMessage(message);
             }else {
                 try {
                     JSONObject jsonObject=new JSONObject(newComment);
@@ -260,38 +265,7 @@ public class WeiboDetailActivity extends AppCompatActivity {
                 }
                 Message message=new Message();
                 message.arg1=SEND_COMMENT_SUCCESS;
-                handler.sendMessage(message);
-            }
-        }
-    }
-
-    private class TaskReadNewComment implements Runnable{
-        String weiboId;
-        TaskReadNewComment(String weiboId){
-            this.weiboId=weiboId;
-        }
-        @Override
-        public void run() {
-            String urlString="https://api.weibo.com/2/comments/show.json?access_token="+Constant.accessToken.getToken()+"&id="+weiboId;
-            String comments=WebTools.getWebString(urlString);
-            if (comments==null){
-                //从网络中读取错误
-
-            }else {
-                try{
-                    JSONObject jsonObject=new JSONObject(comments);
-                    JSONArray jsonArray=jsonObject.getJSONArray("comments");
-                    Log.d(TAG,"get comment num = "+jsonArray.length());
-                    for (int i=0;i<jsonArray.length();i++){
-                        listComments.add(ParseJsonTools.getCommentDataFromJaon(jsonArray.getJSONObject(i)));
-                    }
-                    Message message=new Message();
-                    message.arg1=NOTIFY_COMMENT;
-                    handler.sendMessage(message);
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-
+//                handler.sendMessage(message);
             }
         }
     }

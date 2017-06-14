@@ -15,11 +15,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".MainPageActivity"
+        <activity android:name=".view.MainPageActivity"
             android:theme="@style/AppTheme.Light.Main"/>
-        <activity android:name=".WeiboDetailActivity"
+        <activity android:name=".view.WeiboDetailActivity"
             android:theme="@style/AppTheme.Light.Transparent"/>
-        <activity android:name=".UserDataActivity"
+        <activity android:name=".view.UserDataActivity"
             android:theme="@style/AppTheme.Light.Transparent"/>
         <activity android:name=".TempActivity"/>
         <activity android:name=".SettingActivity"

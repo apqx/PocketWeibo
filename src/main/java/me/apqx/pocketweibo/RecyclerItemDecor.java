@@ -5,9 +5,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
-
-import me.apqx.pocketweibo.tools.ViewTools;
 
 /**
  * Created by apqx on 2017/5/14.

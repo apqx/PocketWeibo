@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
@@ -19,7 +18,9 @@ import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 
-import me.apqx.pocketweibo.tools.Tools;
+import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.ViewTools;
+import me.apqx.pocketweibo.view.MainPageActivity;
 
 /**
  * Created by apqx on 2017/5/2.
@@ -101,14 +102,14 @@ public class SplashActivity extends Activity {
             if (Constant.accessToken.isSessionValid()){
                 //授权成功，将获得的token保存到本地
                 AccessTokenKeeper.writeAccessToken(SplashActivity.this,Constant.accessToken);
-                Tools.showToast(R.string.authority_success);
+                ViewTools.showToast(R.string.authority_success);
                 startActivity(new Intent(SplashActivity.this,MainPageActivity.class));
             }else {
                 //授权失败，获取失败码
                 String code=bundle.getString("code");
                 Log.d(TAG,"authority error code is "+code);
                 if (!TextUtils.isEmpty(code)){
-                    Tools.showToast(getString(R.string.authority_failed)+" code is "+code);
+                    ViewTools.showToast(getString(R.string.authority_failed)+" code is "+code);
                 }
                 //重新授权
                 ssoHandler.authorizeWeb(new AuthListener());

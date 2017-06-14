@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo.tools;
+package me.apqx.pocketweibo.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
