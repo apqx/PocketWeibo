@@ -14,8 +14,8 @@ import me.apqx.pocketweibo.bean.WeiboItemData;
 public interface IMainPagePresenter {
     void refreshNewWeibo();
     void refreshOldWeibo(String weiboId);
-    void saveWeibosToLocal(List<WeiboItemData> list);
-    void readWeiboFromLocal();
+    void saveWeibosToLocal(List<WeiboItemData> list,String uid);
+    void readWeiboFromLocal(String uid);
     void refreshUserDataFromWeb(@Nullable String userName, @Nullable String uid);
     void saveUserDataToLocal(UserData userData);
     void readUserDataFromLocal(String uid);

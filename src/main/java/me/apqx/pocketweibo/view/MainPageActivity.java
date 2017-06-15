@@ -142,7 +142,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
         if (Constant.accessToken!=null){
             Intent intent=getIntent();
             //从登陆界面获得uid
-            String uid=intent.getStringExtra("uid");
+            String uid=Constant.accessToken.getUid();
             String fromService=intent.getAction();
             if (fromService==NotifyService.ACTION_FROM_SERVICE){
                 //如果是用户点击Notification而启动的微博页面，应该立即联网刷新
@@ -152,7 +152,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
                 }
             }else {
                 //启动时，首先从本地读取保存好的微博，如果本地不存在缓存文件，就从网络中读取
-                mainPagePresenter.readWeiboFromLocal();
+                mainPagePresenter.readWeiboFromLocal(Constant.accessToken.getUid());
             }
             //启动时，先从本地读取用户信息
             mainPagePresenter.readUserDataFromLocal(uid);
@@ -334,7 +334,7 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
         }else {
             list.addAll(weiboItemDataList);
         }
-        mainPagePresenter.saveWeibosToLocal(list);
+        mainPagePresenter.saveWeibosToLocal(list,Constant.accessToken.getUid());
         adapter.notifyDataSetChanged();
     }
 

@@ -129,16 +129,16 @@ public class Tools {
         return device;
     }
 
-    public static boolean saveWeiboListToLocal(List<WeiboItemData> list){
+    public static boolean saveWeiboListToLocal(List<WeiboItemData> list,String uid){
         Gson gson=new Gson();
         String jsonArray=gson.toJson(list);
-        boolean success=saveFileToLocal(jsonArray,"WeiboListCache.json");
+        boolean success=saveFileToLocal(jsonArray,"WeiboListCache"+"_uid"+".json");
         Log.d(TAG,"saveWeiboListToLocal num = "+list.size());
         return success;
     }
 
-    public static List<WeiboItemData> readWeiboListFromLocal(){
-        String string=readStringFromLocal("WeiboListCache.json");
+    public static List<WeiboItemData> readWeiboListFromLocal(String uid){
+        String string=readStringFromLocal("WeiboListCache"+"_uid"+".json");
         Gson gson=new Gson();
         if (string==null){
             return new ArrayList<WeiboItemData>();
@@ -147,8 +147,8 @@ public class Tools {
         return list;
     }
     //获取本地保存的最新的微博id
-    public static String getLastWeiboId(){
-        return readWeiboListFromLocal().get(0).getWeiboId();
+    public static String getLastWeiboId(String uid){
+        return readWeiboListFromLocal(uid).get(0).getWeiboId();
     }
     public static boolean saveUserDataToLocal(UserData userData){
         Boolean success;

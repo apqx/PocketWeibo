@@ -71,7 +71,7 @@ public class MainPagePresenter implements IMainPagePresenter {
                             ViewTools.showToast(R.string.refresh_weibo);
                         }else {
                             Log.d(TAG,"get new weibo count = "+list.size());
-                            ViewTools.showToast(R.string.refresh_weibo_failed);
+                            ViewTools.showToast(R.string.no_new_weibo);
                         }
                     }
 
@@ -79,6 +79,7 @@ public class MainPagePresenter implements IMainPagePresenter {
                     public void onError(@NonNull Throwable e) {
                         Log.d(TAG,"refresh new weibo error");
                         e.printStackTrace();
+                        ViewTools.showToast(R.string.refresh_failed);
                         mainPageView.toggleSwipeRefreshIfIsRefreshing();
                     }
 
@@ -127,12 +128,12 @@ public class MainPagePresenter implements IMainPagePresenter {
     }
 
     @Override
-    public void readWeiboFromLocal() {
-        Observable.just("Read")
+    public void readWeiboFromLocal(final String uid) {
+        Observable.just(uid)
                 .map(new Function<String, List<WeiboItemData>>() {
                     @Override
                     public List<WeiboItemData> apply(@NonNull String s) throws Exception {
-                        List<WeiboItemData> list=Tools.readWeiboListFromLocal();
+                        List<WeiboItemData> list=Tools.readWeiboListFromLocal(s);
                         return list;
                     }
                 })
@@ -157,12 +158,12 @@ public class MainPagePresenter implements IMainPagePresenter {
 
     //把现在列表中的微博存储到本地
     @Override
-    public void saveWeibosToLocal(final List<WeiboItemData> list){
+    public void saveWeibosToLocal(final List<WeiboItemData> list,final String uid){
         Observable.just(list)
                 .map(new Function<List<WeiboItemData>, Boolean>() {
                     @Override
                     public Boolean apply(@NonNull List<WeiboItemData> weiboItemDataList) throws Exception {
-                        return Tools.saveWeiboListToLocal(weiboItemDataList);
+                        return Tools.saveWeiboListToLocal(weiboItemDataList,uid);
                     }
                 })
                 .subscribeOn(Schedulers.newThread())
@@ -254,7 +255,8 @@ public class MainPagePresenter implements IMainPagePresenter {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        e.printStackTrace();
+                        ViewTools.showToast(R.string.web_error);
                     }
 
                     @Override

@@ -22,12 +22,19 @@ import retrofit2.http.Url;
  */
 
 public interface WeiboServer {
+    //获取用户关注的微博
     @GET ("https://api.weibo.com/2/statuses/home_timeline.json")
     Observable<Weibos> getWeibos(@Query("access_token") String accessToken,@Query("max_id") String manId);
+    //获取用户发送的微博
+    @GET ("https://api.weibo.com/2/statuses/user_timeline.json")
+    Observable<Weibos> getUserWeibos(@Query("access_token") String accessToken,@Query("screen_name") String userName);
+    //获取用户信息
     @GET ("https://api.weibo.com/2/users/show.json")
     Observable<UserData> getUserData(@Query("access_token") String accessToken,@Query("screen_name") String userName,@Query("uid") String uid);
+    //获取指定微博的评论信息
     @GET ("https://api.weibo.com/2/comments/show.json")
     Observable<Comments> getCommentData(@Query("access_token") String accessToken, @Query("id") String weiboId, @Query("max_id") String maxId);
+    //发表对指定微博的评论
     @POST ("https://api.weibo.com/2/comments/create.json")
     @FormUrlEncoded
     Observable<ResponseBody> newComment(@Field("access_token") String accessToken,@Field("comment") String comment,@Field("id") String weiboId);

@@ -57,11 +57,6 @@ import me.apqx.pocketweibo.customView.SwipeActivityLayout;
 
 public class WeiboDetailActivity extends AppCompatActivity implements IWeiboDetailView{
     private static final String TAG="WeiboDetailActivity";
-    private static final int NOTIFY_LIKE=0;
-    private static final int NOTIFY_COMMENT=1;
-    private static final int NOTIFY_REPOST=2;
-    static final int SEND_COMMENT_ERROR=3;
-    static final int SEND_COMMENT_SUCCESS=4;
 
     private Toolbar toolbar;
     private ExecutorService exec;
@@ -228,47 +223,13 @@ public class WeiboDetailActivity extends AppCompatActivity implements IWeiboDeta
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exec.execute(new TaskSendComment(editText.getText().toString(),weiboID));
+//                exec.execute(new TaskSendComment(editText.getText().toString(),weiboID));
+                weiboDetailPresenter.newComment(weiboID,editText.getText().toString());
             }
         });
     }
 
-    private class TaskSendComment implements Runnable{
-        String comment;
-        String id;
-        TaskSendComment(String comment,String id){
-            this.comment=comment;
-            this.id=id;
-        }
-        @Override
-        public void run() {
-            String urlString="https://api.weibo.com/2/comments/create.json";
-            try {
-                comment= URLEncoder.encode(comment,"UTF-8");
-            }catch (UnsupportedEncodingException e){
-                e.printStackTrace();
-            }
-            String post="access_token="+ Constant.accessToken.getToken()+"&comment="+comment+"&id="+id;
-            String newComment=WebTools.postWebString(urlString,post);
-            if (newComment==null){
-                //说明网络错误
-                Message message=new Message();
-                message.arg1=SEND_COMMENT_ERROR;
-//                handler.sendMessage(message);
-            }else {
-                try {
-                    JSONObject jsonObject=new JSONObject(newComment);
-                    CommentData commentData=ParseJsonTools.getCommentDataFromJaon(jsonObject);
-                    listComments.add(0,commentData);
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-                Message message=new Message();
-                message.arg1=SEND_COMMENT_SUCCESS;
-//                handler.sendMessage(message);
-            }
-        }
-    }
+
 
     
 }

@@ -32,6 +32,11 @@ import me.apqx.pocketweibo.Constant;
 import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.WeiboItemRecyclerAdapter;
+import me.apqx.pocketweibo.model.WeiboServer;
+import me.apqx.pocketweibo.presenter.DownloadPresenter;
+import me.apqx.pocketweibo.presenter.IDownloadPresenter;
+import me.apqx.pocketweibo.presenter.IUserPagePresenter;
+import me.apqx.pocketweibo.presenter.UserPagePresenter;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
 import me.apqx.pocketweibo.bean.UserData;
 import me.apqx.pocketweibo.bean.WeiboItemData;
@@ -44,7 +49,7 @@ import me.apqx.pocketweibo.customView.SwipeActivityLayout;
  * Created by apqx on 2017/5/16.
  */
 
-public class UserDataActivity extends AppCompatActivity {
+public class UserDataActivity extends AppCompatActivity implements IUserDataView{
     private final String TAG=this.getClass().getSimpleName();
     private static final int TYPE_GET_WEIBO_FROM_WEB=0;
     private static final int TYPE_GET_USERDATA_FROM_WEB=1;
@@ -68,16 +73,22 @@ public class UserDataActivity extends AppCompatActivity {
     private WeiboItemRecyclerAdapter adapter;
     private UserData userData;
     private ExecutorService exec= AppThreadPool.getThreadPool();
-    private Handler handler;
+//    private Handler handler;
+
+    private IUserPagePresenter userPagePresenter;
+    private IDownloadPresenter downloadPresenter;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (MyApplication.getMyTheme()==MyApplication.THEME_DARK){
             setTheme(R.style.AppTheme_Dark_Transparent);
         }else {
             setTheme(R.style.AppTheme_Light_Transparent);
         }
         setContentView(R.layout.layout_user_page);
+        userPagePresenter=new UserPagePresenter(this);
+        downloadPresenter=new DownloadPresenter();
         toolbar=(Toolbar)findViewById(R.id.toolbar_userData);
         swipeActivityHelper=new SwipeActivityHelper(this);
         swipeActivityHelper.onActivityCreate();
@@ -99,19 +110,21 @@ public class UserDataActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        handler=new DataHandler();
+//        handler=new DataHandler();
         Intent intent=getIntent();
         String userName=intent.getStringExtra("apqx");
         userData= MainPageActivity.getUserData(userName);
         if (userData==null){
             //这时应该联网查询
-            exec.execute(new TaskGetUserDataFromWeb(userName));
+//            exec.execute(new TaskGetUserDataFromWeb(userName));
+            userPagePresenter.refreshUserData(userName,null);
         }else {
             setUserDataToView();
         }
 
         //联网获取这个用户的微博
-        exec.execute(new TaskGetUserWeiboFromWeb(userName));
+//        exec.execute(new TaskGetUserWeiboFromWeb(userName));
+        userPagePresenter.refreshUserWeibo(userName);
 
     }
     private void setUserDataToView(){
@@ -145,7 +158,11 @@ public class UserDataActivity extends AppCompatActivity {
         if (requestCode==0){
             if (grantResults.length>0&&grantResults[0]== PackageManager.PERMISSION_GRANTED){
                 //说明申请权限成功
-                WebTools.startDownLoadPics(handler);
+                if (Constant.urlList.size()>0){
+                    for (String urlString:Constant.urlList){
+                        downloadPresenter.downloadPicture(urlString);
+                    }
+                }
             }else {
                 ViewTools.showToast(getString(R.string.permission_denied));
             }
@@ -173,92 +190,109 @@ public class UserDataActivity extends AppCompatActivity {
         return true;
     }
 
-    private class DataHandler extends Handler{
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.arg1){
-                case TYPE_GET_USERDATA_FROM_WEB:
-                    setUserDataToView();
-                    break;
-                case TYPE_GET_WEIBO_FROM_WEB:
-                    adapter.notifyDataSetChanged();
-                    break;
-                case TYPE_GET_USERDATA_FROM_WEB_ERROR:
-                    ViewTools.showToast(R.string.refresh_userdata_failed);
-                    break;
-                case TYPE_GET_WEIBO_FROM_WEB_ERROR:
-                    ViewTools.showToast(R.string.refresh_weibo_failed);
-                    break;
-                default:break;
-            }
-        }
+    @Override
+    public void showUserData(UserData userData) {
+        this.userData=userData;
+        setUserDataToView();
     }
 
-    private class TaskGetUserWeiboFromWeb implements Runnable{
-        private String userName;
-        public TaskGetUserWeiboFromWeb(String userName){
-            this.userName=userName;
+    @Override
+    public void notifyWeiboDataChanged(List<WeiboItemData> weiboList,boolean isNew) {
+        if (isNew){
+            list.clear();
+            list.addAll(weiboList);
+        }else {
+            list.addAll(weiboList);
         }
-        @Override
-        public void run() {
-            String urlString="https://api.weibo.com/2/statuses/user_timeline.json?access_token="+ Constant.accessToken.getToken()+"&screen_name="+userName;
-            String weiboJson= WebTools.getWebString(urlString);
-            if (weiboJson==null){
-                //从网络中读取错误
-                Message message=new Message();
-                message.arg1=TYPE_GET_WEIBO_FROM_WEB_ERROR;
-                handler.sendMessage(message);
-                Log.d(TAG,"Refresh weibo failed");
-            }else {
-                try{
-                    JSONObject jsonObject=new JSONObject(weiboJson);
-                    JSONArray jsonArray=jsonObject.getJSONArray("statuses");
-                    if (jsonArray!=null&&jsonArray.length()>0){
-                        //向上刷新，应该清空列表，重新加载
-                        list.clear();
-                        for (int i=0;i<jsonArray.length();i++){
-                            list.add(ParseJsonTools.getWeiboFromJson(jsonArray.getJSONObject(i)));
-                        }
-                        Log.d(TAG,"get Weibo from web "+jsonArray.length());
-                    }
-                    Message message=new Message();
-                    message.arg1=TYPE_GET_WEIBO_FROM_WEB;
-                    handler.sendMessage(message);
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-            }
-        }
+        adapter.notifyDataSetChanged();
     }
-    private class TaskGetUserDataFromWeb implements Runnable{
-        private String userName;
-        public TaskGetUserDataFromWeb(String userName){
-            this.userName=userName;
-        }
-        @Override
-        public void run() {
-            String urlString="https://api.weibo.com/2/users/show.json?access_token="+Constant.accessToken.getToken()+"&screen_name="+userName;
-            String userDataJson= WebTools.getWebString(urlString);
-            if (userDataJson==null){
-                //从网络中读取错误
-                Message message=new Message();
-                message.arg1=TYPE_GET_USERDATA_FROM_WEB_ERROR;
-                handler.sendMessage(message);
-                Log.d(TAG,"Refresh userdata failed");
-            }else {
-                try{
-                    JSONObject jsonObject=new JSONObject(userDataJson);
-                    userData=ParseJsonTools.getUserDataFromJson(jsonObject);
-                    Message message=new Message();
-                    message.arg1=TYPE_GET_USERDATA_FROM_WEB;
-                    handler.sendMessage(message);
-                    Log.d(TAG,"get userdata from web "+userName);
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+
+//    private class DataHandler extends Handler{
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            switch (msg.arg1){
+//                case TYPE_GET_USERDATA_FROM_WEB:
+//                    setUserDataToView();
+//                    break;
+//                case TYPE_GET_WEIBO_FROM_WEB:
+//                    adapter.notifyDataSetChanged();
+//                    break;
+//                case TYPE_GET_USERDATA_FROM_WEB_ERROR:
+//                    ViewTools.showToast(R.string.refresh_userdata_failed);
+//                    break;
+//                case TYPE_GET_WEIBO_FROM_WEB_ERROR:
+//                    ViewTools.showToast(R.string.refresh_weibo_failed);
+//                    break;
+//                default:break;
+//            }
+//        }
+//    }
+
+//    private class TaskGetUserWeiboFromWeb implements Runnable{
+//        private String userName;
+//        public TaskGetUserWeiboFromWeb(String userName){
+//            this.userName=userName;
+//        }
+//        @Override
+//        public void run() {
+//            String urlString="https://api.weibo.com/2/statuses/user_timeline.json?access_token="+ Constant.accessToken.getToken()+"&screen_name="+userName;
+//            String weiboJson= WebTools.getWebString(urlString);
+//            if (weiboJson==null){
+//                //从网络中读取错误
+//                Message message=new Message();
+//                message.arg1=TYPE_GET_WEIBO_FROM_WEB_ERROR;
+//                handler.sendMessage(message);
+//                Log.d(TAG,"Refresh weibo failed");
+//            }else {
+//                try{
+//                    JSONObject jsonObject=new JSONObject(weiboJson);
+//                    JSONArray jsonArray=jsonObject.getJSONArray("statuses");
+//                    if (jsonArray!=null&&jsonArray.length()>0){
+//                        //向上刷新，应该清空列表，重新加载
+//                        list.clear();
+//                        for (int i=0;i<jsonArray.length();i++){
+//                            list.add(ParseJsonTools.getWeiboFromJson(jsonArray.getJSONObject(i)));
+//                        }
+//                        Log.d(TAG,"get Weibo from web "+jsonArray.length());
+//                    }
+//                    Message message=new Message();
+//                    message.arg1=TYPE_GET_WEIBO_FROM_WEB;
+//                    handler.sendMessage(message);
+//                }catch (JSONException e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
+//    private class TaskGetUserDataFromWeb implements Runnable{
+//        private String userName;
+//        public TaskGetUserDataFromWeb(String userName){
+//            this.userName=userName;
+//        }
+//        @Override
+//        public void run() {
+//            String urlString="https://api.weibo.com/2/users/show.json?access_token="+Constant.accessToken.getToken()+"&screen_name="+userName;
+//            String userDataJson= WebTools.getWebString(urlString);
+//            if (userDataJson==null){
+//                //从网络中读取错误
+//                Message message=new Message();
+//                message.arg1=TYPE_GET_USERDATA_FROM_WEB_ERROR;
+//                handler.sendMessage(message);
+//                Log.d(TAG,"Refresh userdata failed");
+//            }else {
+//                try{
+//                    JSONObject jsonObject=new JSONObject(userDataJson);
+//                    userData=ParseJsonTools.getUserDataFromJson(jsonObject);
+//                    Message message=new Message();
+//                    message.arg1=TYPE_GET_USERDATA_FROM_WEB;
+//                    handler.sendMessage(message);
+//                    Log.d(TAG,"get userdata from web "+userName);
+//                }catch (JSONException e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 
 }

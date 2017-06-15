@@ -73,7 +73,7 @@ public class NotifyService extends Service {
                         JSONArray jsonArray=jsonObject.getJSONArray("statuses");
                         if (jsonArray!=null&&jsonArray.length()>0){
                             long newId=Long.parseLong(ParseJsonTools.getWeiboFromJson(jsonArray.getJSONObject(0)).getWeiboId());
-                            long oldId=Long.parseLong(Tools.getLastWeiboId());
+                            long oldId=Long.parseLong(Tools.getLastWeiboId(Constant.accessToken.getUid()));
                             Log.d(TAG,newId+" "+oldId);
                             if(newId>oldId){
                                 //说明有新的微博,应该弹出Notification

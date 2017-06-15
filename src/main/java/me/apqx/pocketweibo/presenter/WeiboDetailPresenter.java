@@ -1,7 +1,10 @@
 package me.apqx.pocketweibo.presenter;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -30,13 +33,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class WeiboDetailPresenter implements IWeiboDetailPresenter {
+    private static final String TAG="WeiboDetailPresenter";
     private IWeiboDetailView weiboDetailView;
     private WeiboServer weiboServer;
     public WeiboDetailPresenter(IWeiboDetailView weiboDetailView){
         this.weiboDetailView=weiboDetailView;
         Gson gson=new Gson();
         Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl("https://api.weibo.com")
+                .baseUrl("https://api.weibo.com/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
@@ -51,20 +55,38 @@ public class WeiboDetailPresenter implements IWeiboDetailPresenter {
                         if (comments!=null){
                             return comments.getComments();
                         }
-                        return null;
+                        return new ArrayList<CommentData>();
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<CommentData>>() {
+                .subscribe(new Observer<List<CommentData>>() {
                     @Override
-                    public void accept(@NonNull List<CommentData> list) throws Exception {
-                        if (list!=null){
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull List<CommentData> list) {
+                        if (list.size()>0){
                             //加载评论成功
+                            Log.d(TAG,"refresh newComment onNext count = "+list.size());
                             weiboDetailView.notifyCommentListChanged(list,true);
                         }else {
                             //加载评论失败
                         }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        //网络错误，加载评论失败
+                        Log.d(TAG,"refresh newComment onError");
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
     }

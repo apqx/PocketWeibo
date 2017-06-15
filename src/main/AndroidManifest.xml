@@ -21,7 +21,6 @@
             android:theme="@style/AppTheme.Light.Transparent"/>
         <activity android:name=".view.UserDataActivity"
             android:theme="@style/AppTheme.Light.Transparent"/>
-        <activity android:name=".TempActivity"/>
         <activity android:name=".SettingActivity"
             android:theme="@style/AppTheme.Light.Transparent"/>
         <service android:name=".service.NotifyService"/>

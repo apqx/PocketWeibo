@@ -37,8 +37,9 @@ public class CommentItemRecyclerAdapter extends RecyclerView.Adapter<CommentItem
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (position==getItemCount()-1&&listener!=null){
-            listener.onRefresh(list.get(position).getCommentId());
+        if (getItemCount()>0&&position==getItemCount()-1&&listener!=null){
+            //暂时不加载过时的评论
+//            listener.onRefresh(list.get(position).getCommentId());
         }
         CommentData commentData=list.get(position);
         UserData userData=commentData.getUserData();

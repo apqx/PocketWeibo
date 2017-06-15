@@ -103,6 +103,7 @@ public class SplashActivity extends Activity {
                 //授权成功，将获得的token保存到本地
                 AccessTokenKeeper.writeAccessToken(SplashActivity.this,Constant.accessToken);
                 ViewTools.showToast(R.string.authority_success);
+                Log.d(TAG,"authority success");
                 startActivity(new Intent(SplashActivity.this,MainPageActivity.class));
             }else {
                 //授权失败，获取失败码

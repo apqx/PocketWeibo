@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.InputStream;
 
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BooleanSupplier;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -53,16 +55,31 @@ public class DownloadPresenter implements IDownloadPresenter{
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Boolean>() {
+                .subscribe(new Observer<Boolean>() {
                     @Override
-                    public void accept(@NonNull Boolean isSuccess) throws Exception {
-                        if (isSuccess){
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull Boolean aBoolean) {
+                        if (aBoolean){
                             //下载成功
                             ViewTools.showToast(R.string.save_file_success);
                         }else {
                             //下载失败
                             ViewTools.showToast(R.string.save_file_failed);
                         }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        ViewTools.showToast(R.string.web_error);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
     }
