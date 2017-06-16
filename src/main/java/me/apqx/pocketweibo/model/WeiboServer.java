@@ -37,5 +37,5 @@ public interface WeiboServer {
     //发表对指定微博的评论
     @POST ("https://api.weibo.com/2/comments/create.json")
     @FormUrlEncoded
-    Observable<ResponseBody> newComment(@Field("access_token") String accessToken,@Field("comment") String comment,@Field("id") String weiboId);
+    Observable<ResponseBody> newComment(@Field("access_token") String accessToken,@Field(value = "comment",encoded = true) String comment,@Field("id") String weiboId);
 }

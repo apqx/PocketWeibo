@@ -35,6 +35,7 @@ import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.SettingActivity;
 import me.apqx.pocketweibo.WeiboItemRecyclerAdapter;
+import me.apqx.pocketweibo.model.WebTools;
 import me.apqx.pocketweibo.presenter.DownloadPresenter;
 import me.apqx.pocketweibo.presenter.IDownloadPresenter;
 import me.apqx.pocketweibo.presenter.IMainPagePresenter;
@@ -53,18 +54,10 @@ import me.apqx.pocketweibo.model.ViewTools;
 
 public class MainPageActivity extends AppCompatActivity implements View.OnClickListener ,IMainPageView{
     private static final String TAG="MainPageActivity";
-    private static final int FILL_WEIBO_FROM_WEB_UP =0;
-    private static final int FILL_WEIBO_FROM_WEB_DOWN =1;
-    private static final int FILL_WEIBO_FROM_LOCAL =2;
-    private static final int READ_WEB_ERROR=3;
-    private static final int READ_USERDATA_FROM_WEB=4;
-    private static final int READ_USERDATA_FROM_LOCAL=5;
-    private static final int READ_USERDATA_FROM_LOCAL_ERROR=6;
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
     private FloatingActionButton fab;
-    private ExecutorService exec;
     private RecyclerView recyclerView;
     private WeiboItemRecyclerAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -136,7 +129,6 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        exec= AppThreadPool.getThreadPool();
 
         //只有在用户已登录的情况下才加载微博信息
         if (Constant.accessToken!=null){
@@ -249,6 +241,14 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
     protected void onResume() {
         super.onResume();
         sendBroadcast(new Intent(NotifyReceiver.ACTION_SHOUND_NOT_NOTIFY_WEIBO));
+        if (WebTools.isUsingLTE()){
+            if (Settings.NO_IMAGE_ON_LTE==WeiboItemRecyclerAdapter.loadImage){
+
+//                Log.d(TAG,"Toggle Image - "+Settings.NO_IMAGE_ON_LTE+" "+WeiboItemRecyclerAdapter.loadImage);
+                WeiboItemRecyclerAdapter.loadImage=!WeiboItemRecyclerAdapter.loadImage;
+                adapter.notifyDataSetChanged();
+            }
+        }
     }
 
     @Override

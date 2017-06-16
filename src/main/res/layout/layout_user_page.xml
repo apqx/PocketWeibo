@@ -61,7 +61,7 @@
                     android:layout_marginTop="5dp"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
-                <me.apqx.pocketweibo.customView.CircleImageView
+                <com.facebook.drawee.view.SimpleDraweeView
                     android:layout_width="15dp"
                     android:layout_height="15dp"
                     android:id="@+id/imageView_user_page_gender"

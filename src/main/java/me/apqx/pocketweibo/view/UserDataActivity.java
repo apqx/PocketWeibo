@@ -14,8 +14,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -51,10 +53,6 @@ import me.apqx.pocketweibo.customView.SwipeActivityLayout;
 
 public class UserDataActivity extends AppCompatActivity implements IUserDataView{
     private final String TAG=this.getClass().getSimpleName();
-    private static final int TYPE_GET_WEIBO_FROM_WEB=0;
-    private static final int TYPE_GET_USERDATA_FROM_WEB=1;
-    private static final int TYPE_GET_USERDATA_FROM_WEB_ERROR=2;
-    private static final int TYPE_GET_WEIBO_FROM_WEB_ERROR=3;
 
     private SwipeActivityHelper swipeActivityHelper;
 
@@ -62,7 +60,7 @@ public class UserDataActivity extends AppCompatActivity implements IUserDataView
     private MenuItem menuItem_follow;
     private SimpleDraweeView imageView_head;
     private SimpleDraweeView imageView_bg;
-    private ImageView imageView_gender;
+    private SimpleDraweeView imageView_gender;
     private TextView textView_name;
     private TextView textView_location;
     private TextView textView_followers;
@@ -98,7 +96,7 @@ public class UserDataActivity extends AppCompatActivity implements IUserDataView
 
         imageView_head=(SimpleDraweeView) findViewById(R.id.imageView_user_page_head);
         imageView_bg=(SimpleDraweeView) findViewById(R.id.imageView_user_page_bg);
-        imageView_gender=(ImageView)findViewById(R.id.imageView_user_page_gender);
+        imageView_gender=(SimpleDraweeView)findViewById(R.id.imageView_user_page_gender);
         textView_name=(TextView)findViewById(R.id.textView_user_page_name);
         textView_location=(TextView)findViewById(R.id.textView_user_page_location);
         textView_followers=(TextView)findViewById(R.id.textView_user_page_followers);
@@ -198,6 +196,11 @@ public class UserDataActivity extends AppCompatActivity implements IUserDataView
 
     @Override
     public void notifyWeiboDataChanged(List<WeiboItemData> weiboList,boolean isNew) {
+        if (weiboList==null){
+            //表示无法获取用户发送的微博
+            ViewTools.showToast(R.string.api_limit);
+            return;
+        }
         if (isNew){
             list.clear();
             list.addAll(weiboList);

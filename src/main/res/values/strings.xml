@@ -48,5 +48,6 @@
     <string name="api_limit_get_weibo_failed">接口限制，无法获取微博信息</string>
     <string name="no_new_weibo">没有新的微博</string>
     <string name="refresh_failed">刷新失败</string>
+    <string name="api_limit">API限制，无法获取非授权用户微博</string>
 
 </resources>

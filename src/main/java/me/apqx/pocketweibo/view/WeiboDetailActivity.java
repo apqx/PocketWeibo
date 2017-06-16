@@ -59,7 +59,6 @@ public class WeiboDetailActivity extends AppCompatActivity implements IWeiboDeta
     private static final String TAG="WeiboDetailActivity";
 
     private Toolbar toolbar;
-    private ExecutorService exec;
     private RadioButton radioLikes;
     private RadioButton radioComment;
     private RadioButton radioRepost;
@@ -98,7 +97,6 @@ public class WeiboDetailActivity extends AppCompatActivity implements IWeiboDeta
         radioLikes=(RadioButton)findViewById(R.id.radio_weibo_detail_like);
         radioComment=(RadioButton)findViewById(R.id.radio_weibo_detail_comment);
         radioRepost=(RadioButton)findViewById(R.id.radio_weibo_detail_repost);
-        exec= AppThreadPool.getThreadPool();
 
         swipeActivityHelper=new SwipeActivityHelper(this);
         swipeActivityHelper.onActivityCreate();
@@ -223,7 +221,6 @@ public class WeiboDetailActivity extends AppCompatActivity implements IWeiboDeta
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                exec.execute(new TaskSendComment(editText.getText().toString(),weiboID));
                 weiboDetailPresenter.newComment(weiboID,editText.getText().toString());
             }
         });

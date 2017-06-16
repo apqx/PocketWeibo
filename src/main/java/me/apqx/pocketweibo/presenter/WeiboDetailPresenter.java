@@ -120,7 +120,7 @@ public class WeiboDetailPresenter implements IWeiboDetailPresenter {
 
     @Override
     public void newComment(String weiboId, String comment) {
-        weiboServer.newComment(Constant.accessToken.getToken(),weiboId,comment)
+        weiboServer.newComment(Constant.accessToken.getToken(),comment,weiboId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ResponseBody>() {
@@ -132,11 +132,13 @@ public class WeiboDetailPresenter implements IWeiboDetailPresenter {
                     @Override
                     public void onNext(@NonNull ResponseBody responseBody) {
                         ViewTools.showToast(R.string.commentSuccess);
+                        //应该把立即把评论加载到视图中，并更新本地保存的数据
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
                         ViewTools.showToast(R.string.comment_failed);
+                        e.printStackTrace();
                     }
 
                     @Override

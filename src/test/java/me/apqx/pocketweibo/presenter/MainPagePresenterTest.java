@@ -42,7 +42,7 @@ public class MainPagePresenterTest {
 
     @Test
     public void refreshNewWeibo() throws Exception {
-        weiboServer.getWeibos(ACCESS_TOKEN)
+        weiboServer.getWeibos(ACCESS_TOKEN,null)
 //                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())
                 .subscribe(new Observer<Weibos>() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<me.relex.photodraweeview.PhotoDraweeView
+<me.apqx.pocketweibo.customView.MyPhotoDraweeView
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/simpleDraweeView_main_item_head"

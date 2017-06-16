@@ -79,6 +79,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:textAppearance="@style/textStyle_main_content"
+            android:textColor="?attr/weiboTextColor"
             tools:text="/@头条新闻" />
     </RelativeLayout>
 </LinearLayout>

@@ -37,6 +37,7 @@
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
+                android:background="?attr/weiboBgColor"
                 android:orientation="horizontal">
                 <RadioButton
                     android:layout_width="wrap_content"
@@ -45,6 +46,7 @@
                     android:layout_weight="1"
                     android:button="@null"
                     android:gravity="center"
+                    android:textColor="?attr/weiboSecondTextColor"
                     android:background="@drawable/radio_button_bg"
                     tools:text="Likes 95"/>
                 <RadioButton
@@ -55,6 +57,7 @@
                     android:layout_weight="1"
                     android:button="@null"
                     android:gravity="center"
+                    android:textColor="?attr/weiboSecondTextColor"
                     android:background="@drawable/radio_button_bg"
                     tools:text="Comments 115"/>
                 <RadioButton
@@ -64,6 +67,7 @@
                     android:layout_weight="1"
                     android:button="@null"
                     android:gravity="center"
+                    android:textColor="?attr/weiboSecondTextColor"
                     android:background="@drawable/radio_button_bg"
                     tools:text="Reposts 45"/>
             </RadioGroup>

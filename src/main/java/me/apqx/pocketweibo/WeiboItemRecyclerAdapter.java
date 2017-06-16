@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,13 +59,13 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
     public static final int WEIBO_USER_PAGE=2;
     public static final int ITEM_NORMAL=3;
     public static final int ITEM_FOOTER=4;
+    public static boolean loadImage=true;
 
     private DownloadPresenter downloadPresenter;
     private List<WeiboItemData> list;
     private int resource;
     private int weiboType;
 
-    private Handler handler;
     private Activity activity;
 
     private MyOnClickListener onClickListener;
@@ -76,7 +77,6 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         this.list=list;
         this.resource=resource;
         this.weiboType=weiboType;
-        handler=new Handler();
         this.activity=activity;
         downloadPresenter=new DownloadPresenter();
     }
@@ -141,9 +141,10 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         holder.textView_name.setTag(userData.getUserName());
 
         //对有图片的微博显示图片
-        if (weiboItemData.hasPics()){
+        if (weiboItemData.hasPics()&&loadImage){
             if (Settings.NO_IMAGE_ON_LTE&&WebTools.isUsingLTE()){
                 //只有这种情况是不显示图片的
+                holder.gridLayout_pic.setVisibility(View.GONE);
             }else {
                 holder.gridLayout_pic.setVisibility(View.VISIBLE);
                 holder.gridLayout_pic.setTag(weiboItemData.getWeiboId());
@@ -184,9 +185,10 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
             //把被转发的微博原ID保存在View里
             holder.textView_reTwitter_content.setTag(reTwitterWeibo.getWeiboId());
 
-            if (reTwitterWeibo.hasPics()){
+            if (reTwitterWeibo.hasPics()&&loadImage){
                 if (Settings.NO_IMAGE_ON_LTE&&WebTools.isUsingLTE()){
                     //只有这种情况是不显示图片的
+                    holder.gridLayout_reTwitter_pic.setVisibility(View.GONE);
                 }else {
                     holder.gridLayout_reTwitter_pic.setVisibility(View.VISIBLE);
                     Log.d(TAG, "ReTwitter " + reTwitterUserData.getUserName() + " has pic nem = " + reTwitterWeibo.getPicUrls().getImageCount());
@@ -565,6 +567,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
         }
     }
     //图片网格点击监听器，点击网格中的一张图片，弹出一个大的窗口查看
+    PopupWindow popupWindow;
     private class GridItemClickListener implements View.OnClickListener{
         private PicUrls picUrls;
         private int index;
@@ -597,6 +600,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                 });
                 mPhotoDraweeView.setController(controller.build());
                 list.add(mPhotoDraweeView);
+
                 mPhotoDraweeView.setOnLongClickListener(new View.OnLongClickListener() {
 
                     @Override
@@ -615,16 +619,23 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
                         return false;
                     }
                 });
+                mPhotoDraweeView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //单击某个图片，Window应该退出
+                        popupWindow.dismiss();
+                    }
+                });
 
             }
             PagerAdapter pagerAdapter=new GridPicPageAdapter(list);
             viewPager.setAdapter(pagerAdapter);
             viewPager.setCurrentItem(index);
 
-            final PopupWindow popupWindow=new PopupWindow(view, ViewPager.LayoutParams.MATCH_PARENT, ViewPager.LayoutParams.MATCH_PARENT);
+            popupWindow=new PopupWindow(view, ViewPager.LayoutParams.MATCH_PARENT, ViewPager.LayoutParams.MATCH_PARENT);
+
             popupWindow.setFocusable(true);
             popupWindow.showAsDropDown(viewPager);
-
 
         }
     }
