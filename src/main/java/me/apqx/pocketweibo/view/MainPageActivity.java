@@ -185,6 +185,12 @@ public class MainPageActivity extends AppCompatActivity implements View.OnClickL
             }
         });
         fab.setOnClickListener(this);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mainPagePresenter.refreshNewWeibo();
+            }
+        });
     }
 
     @Override
