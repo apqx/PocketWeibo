@@ -63,6 +63,7 @@ public class SwipeActivityLayout extends LinearLayout {
     int x,y;
     int lastX,lastY;
     int offsetX,offsetY;
+    int count=0;
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         x=(int)ev.getRawX();
@@ -70,6 +71,7 @@ public class SwipeActivityLayout extends LinearLayout {
         boolean result=false;
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
+                count=0;
                 lastX=x;
                 lastY=y;
                 if (!scroller.isFinished()){
@@ -80,7 +82,11 @@ public class SwipeActivityLayout extends LinearLayout {
                 offsetX=x-lastX;
                 offsetY=y-lastY;
                 if (Math.abs(offsetX)>Math.abs(offsetY)*2){
-                    result=true;
+                    count++;
+                    if (count>3){
+                        result=true;
+                        count=0;
+                    }
                 }
                 lastX=x;
                 lastY=y;

@@ -118,6 +118,7 @@ public class LinkTextView extends AppCompatTextView {
                     customTabsIntent.launchUrl(getContext(), Uri.parse(string));
                     break;
                 case TYPE_END_LINK:
+                    //当用户点击了更多时，应该解析页面，提取出微博的完整信息
                     break;
                 case TYPE_TOPIC:
                     break;

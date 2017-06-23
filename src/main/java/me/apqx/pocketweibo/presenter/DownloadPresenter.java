@@ -5,19 +5,15 @@ import android.os.Environment;
 import java.io.File;
 import java.io.InputStream;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BooleanSupplier;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.model.DownloadServer;
-import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.FileTools;
 import me.apqx.pocketweibo.model.ViewTools;
 import me.apqx.pocketweibo.model.WebTools;
 import okhttp3.ResponseBody;
@@ -26,6 +22,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 /**
  * Created by apqx on 2017/6/14.
+ * 用于下载
  */
 
 public class DownloadPresenter implements IDownloadPresenter{
@@ -50,7 +47,7 @@ public class DownloadPresenter implements IDownloadPresenter{
                             dir.mkdir();
                         }
                         File file=new File(dir, WebTools.hashKeyFromUrl(urlString)+urlString.substring(urlString.length()-4));
-                        return Tools.saveFileToLocalFromStream(file,inputStream);
+                        return FileTools.saveFileToLocalFromStream(file,inputStream);
                     }
                 })
                 .subscribeOn(Schedulers.io())

@@ -19,15 +19,16 @@ import java.util.concurrent.ExecutorService;
 
 import me.apqx.pocketweibo.AppThreadPool;
 import me.apqx.pocketweibo.Constant;
+import me.apqx.pocketweibo.model.FileTools;
 import me.apqx.pocketweibo.view.MainPageActivity;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.struct.ParseJsonTools;
 import me.apqx.pocketweibo.model.Settings;
-import me.apqx.pocketweibo.model.Tools;
 import me.apqx.pocketweibo.model.WebTools;
 
 /**
  * Created by apqx on 2017/6/8.
+ * 用于后台刷新微博的服务
  */
 
 public class NotifyService extends Service {
@@ -73,7 +74,7 @@ public class NotifyService extends Service {
                         JSONArray jsonArray=jsonObject.getJSONArray("statuses");
                         if (jsonArray!=null&&jsonArray.length()>0){
                             long newId=Long.parseLong(ParseJsonTools.getWeiboFromJson(jsonArray.getJSONObject(0)).getWeiboId());
-                            long oldId=Long.parseLong(Tools.getLastWeiboId(Constant.accessToken.getUid()));
+                            long oldId=Long.parseLong(FileTools.getLastWeiboId(Constant.accessToken.getUid()));
                             Log.d(TAG,newId+" "+oldId);
                             if(newId>oldId){
                                 //说明有新的微博,应该弹出Notification

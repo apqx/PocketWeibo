@@ -10,6 +10,7 @@ import me.apqx.pocketweibo.struct.ParseJsonTools;
 
 /**
  * Created by apqx on 2017/5/6.
+ * 用户信息的封装
  */
 
 public class UserData {

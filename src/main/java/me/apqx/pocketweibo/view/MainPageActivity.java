@@ -27,14 +27,12 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
-import me.apqx.pocketweibo.AppThreadPool;
 import me.apqx.pocketweibo.Constant;
 import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.SettingActivity;
-import me.apqx.pocketweibo.WeiboItemRecyclerAdapter;
+import me.apqx.pocketweibo.adapter.WeiboItemRecyclerAdapter;
 import me.apqx.pocketweibo.model.WebTools;
 import me.apqx.pocketweibo.presenter.DownloadPresenter;
 import me.apqx.pocketweibo.presenter.IDownloadPresenter;

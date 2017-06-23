@@ -18,7 +18,7 @@ import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 
-import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.FileTools;
 import me.apqx.pocketweibo.model.ViewTools;
 import me.apqx.pocketweibo.view.MainPageActivity;
 
@@ -34,7 +34,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Tools.init();
+        FileTools.init();
         setContentView(R.layout.layout_splash);
         linearLayoutLogo=(LinearLayout) findViewById(R.id.linearLayout_logo);
 

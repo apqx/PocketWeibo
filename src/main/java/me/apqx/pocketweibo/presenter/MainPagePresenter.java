@@ -2,17 +2,12 @@ package me.apqx.pocketweibo.presenter;
 
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -25,7 +20,7 @@ import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.bean.UserData;
 import me.apqx.pocketweibo.bean.WeiboItemData;
 import me.apqx.pocketweibo.bean.Weibos;
-import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.FileTools;
 import me.apqx.pocketweibo.model.ViewTools;
 import me.apqx.pocketweibo.model.WeiboServer;
 import me.apqx.pocketweibo.view.IMainPageView;
@@ -133,7 +128,7 @@ public class MainPagePresenter implements IMainPagePresenter {
                 .map(new Function<String, List<WeiboItemData>>() {
                     @Override
                     public List<WeiboItemData> apply(@NonNull String s) throws Exception {
-                        List<WeiboItemData> list=Tools.readWeiboListFromLocal(s);
+                        List<WeiboItemData> list= FileTools.readWeiboListFromLocal(s);
                         return list;
                     }
                 })
@@ -156,14 +151,18 @@ public class MainPagePresenter implements IMainPagePresenter {
                 });
     }
 
-    //把现在列表中的微博存储到本地
+    /**
+     * 把现有的微博保存到本地
+     * @param list 当前微博列表
+     * @param uid 用户ID
+     */
     @Override
     public void saveWeibosToLocal(final List<WeiboItemData> list,final String uid){
         Observable.just(list)
                 .map(new Function<List<WeiboItemData>, Boolean>() {
                     @Override
                     public Boolean apply(@NonNull List<WeiboItemData> weiboItemDataList) throws Exception {
-                        return Tools.saveWeiboListToLocal(weiboItemDataList,uid);
+                        return FileTools.saveWeiboListToLocal(weiboItemDataList,uid);
                     }
                 })
                 .subscribeOn(Schedulers.newThread())
@@ -179,6 +178,10 @@ public class MainPagePresenter implements IMainPagePresenter {
 
     }
 
+    /**
+     * 把用户信息保存到本地
+     * @param userData 用户信息
+     */
     @Override
     public void saveUserDataToLocal(UserData userData) {
         Observable.just(userData)
@@ -187,7 +190,7 @@ public class MainPagePresenter implements IMainPagePresenter {
                 .map(new Function<UserData, Boolean>() {
                     @Override
                     public Boolean apply(@NonNull UserData userData) throws Exception {
-                        return Tools.saveUserDataToLocal(userData);
+                        return FileTools.saveUserDataToLocal(userData);
                     }
                 })
                 .subscribe(new Consumer<Boolean>() {
@@ -203,6 +206,10 @@ public class MainPagePresenter implements IMainPagePresenter {
                 });
     }
 
+    /**
+     * 从本地读取用户信息
+     * @param uid
+     */
     @Override
     public void readUserDataFromLocal(final String uid) {
         Observable.just(uid)
@@ -210,7 +217,7 @@ public class MainPagePresenter implements IMainPagePresenter {
                     @Override
                     public UserData apply(@NonNull String s) throws Exception {
 
-                        return Tools.readUserDataFromLocal(s);
+                        return FileTools.readUserDataFromLocal(s);
                     }
                 })
                 .subscribeOn(Schedulers.newThread())
@@ -229,6 +236,11 @@ public class MainPagePresenter implements IMainPagePresenter {
                 });
     }
 
+    /**
+     * 从网络获取用户信息
+     * @param userName 用户名
+     * @param uid 用户ID
+     */
     @Override
     public void refreshUserDataFromWeb(@Nullable String userName, @Nullable String uid) {
         weiboServer.getUserData(Constant.accessToken.getToken(),userName,uid)

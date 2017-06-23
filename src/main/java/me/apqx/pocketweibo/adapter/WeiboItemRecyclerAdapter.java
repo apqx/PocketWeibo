@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo;
+package me.apqx.pocketweibo.adapter;
 
 import android.Manifest;
 import android.app.Activity;
@@ -6,12 +6,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Animatable;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +33,9 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.apqx.pocketweibo.Constant;
+import me.apqx.pocketweibo.MyApplication;
+import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.bean.PicUrls;
 import me.apqx.pocketweibo.bean.UserData;
 import me.apqx.pocketweibo.bean.WeiboItemData;
@@ -205,7 +206,7 @@ public class WeiboItemRecyclerAdapter extends RecyclerView.Adapter<WeiboItemRecy
     }
     //获取转发微博的状态
     private String getReTwitterState(String rePostCount,String commentCount,String likeCount){
-        String rePost=MyApplication.getContext().getString(R.string.weibo_item_reposts);
+        String rePost= MyApplication.getContext().getString(R.string.weibo_item_reposts);
         String comments=MyApplication.getContext().getString(R.string.weibo_item_comment);
         String likes=MyApplication.getContext().getString(R.string.weibo_item_likes);
         return String.format(rePost+"  %-10s"+comments+"  %-10s"+likes+"  %-10s",rePostCount,commentCount,likeCount);

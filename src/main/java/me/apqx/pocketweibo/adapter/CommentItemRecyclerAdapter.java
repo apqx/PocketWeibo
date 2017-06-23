@@ -1,4 +1,4 @@
-package me.apqx.pocketweibo;
+package me.apqx.pocketweibo.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.List;
 
+import me.apqx.pocketweibo.R;
 import me.apqx.pocketweibo.bean.CommentData;
 import me.apqx.pocketweibo.bean.UserData;
 

@@ -3,13 +3,9 @@ package me.apqx.pocketweibo.bean;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.List;
 
-import me.apqx.pocketweibo.struct.ParseJsonTools;
-import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.FileTools;
 
 /**
  * Created by apqx on 2017/5/6.
@@ -70,7 +66,7 @@ public class WeiboItemData {
     }
 
     public String getDevice() {
-        return Tools.parseDevice(device);
+        return FileTools.parseDevice(device);
     }
 
     public String getContent() {
@@ -78,7 +74,7 @@ public class WeiboItemData {
     }
 
     public String getCreateTime() {
-        return Tools.parseTime(createTime);
+        return FileTools.parseTime(createTime);
     }
 
     public String getLikeCount() {

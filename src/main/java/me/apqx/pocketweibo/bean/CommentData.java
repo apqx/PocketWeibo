@@ -2,10 +2,11 @@ package me.apqx.pocketweibo.bean;
 
 import com.google.gson.annotations.SerializedName;
 
-import me.apqx.pocketweibo.model.Tools;
+import me.apqx.pocketweibo.model.FileTools;
 
 /**
  * Created by apqx on 2017/5/14.
+ * 评论的封装
  */
 
 public class CommentData {
@@ -41,7 +42,7 @@ public class CommentData {
     }
 
     public String getCommentTime() {
-        return Tools.parseTime(commentTime);
+        return FileTools.parseTime(commentTime);
     }
 
     public String getLikeCount() {
@@ -53,7 +54,7 @@ public class CommentData {
     }
 
     public String getDevice() {
-        return Tools.parseDevice(device);
+        return FileTools.parseDevice(device);
     }
 
     public static class Builder{

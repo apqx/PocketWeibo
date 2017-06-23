@@ -34,8 +34,8 @@ import me.apqx.pocketweibo.bean.WeiboItemData;
  * 工具类
  */
 
-public class Tools {
-    private static final String TAG="Tools";
+public class FileTools {
+    private static final String TAG="FileTools";
     public static void init(){}
     public static void closeStream(Object object){
         InputStream inputStream=null;

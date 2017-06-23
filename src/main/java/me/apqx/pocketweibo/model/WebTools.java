@@ -60,7 +60,7 @@ public class WebTools {
             e.printStackTrace();
             Log.d(TAG,"HttpURLConnection failed");
         }finally {
-            Tools.closeStream(bufferedReader);
+            FileTools.closeStream(bufferedReader);
             if (httpURLConnection!=null){
                 httpURLConnection.disconnect();
             }
@@ -69,7 +69,7 @@ public class WebTools {
             return null;
         }
         //将读取到的数据临时保存到本地，方便测试
-        Tools.saveFileToLocal(stringBuilder.toString(),"temp.json");
+        FileTools.saveFileToLocal(stringBuilder.toString(),"temp.json");
         return stringBuilder.toString();
     }
 
@@ -101,8 +101,8 @@ public class WebTools {
             e.printStackTrace();
             Log.d(TAG,"HttpURLConnection failed");
         }finally {
-            Tools.closeStream(bufferedReader);
-            Tools.closeStream(printPost);
+            FileTools.closeStream(bufferedReader);
+            FileTools.closeStream(printPost);
             if (httpURLConnection!=null){
                 httpURLConnection.disconnect();
             }
@@ -136,7 +136,7 @@ public class WebTools {
             e.printStackTrace();
             Log.d(TAG,"HttpURLConnection failed");
         }finally {
-            Tools.closeStream(inputStream);
+            FileTools.closeStream(inputStream);
             if (httpURLConnection!=null){
                 httpURLConnection.disconnect();
             }
@@ -184,8 +184,8 @@ public class WebTools {
                 }
             });
         }finally {
-            Tools.closeStream(inputStream);
-            Tools.closeStream(outputStream);
+            FileTools.closeStream(inputStream);
+            FileTools.closeStream(outputStream);
         }
     }
 

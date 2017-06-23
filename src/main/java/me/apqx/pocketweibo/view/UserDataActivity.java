@@ -3,27 +3,17 @@ package me.apqx.pocketweibo.view;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +23,14 @@ import me.apqx.pocketweibo.AppThreadPool;
 import me.apqx.pocketweibo.Constant;
 import me.apqx.pocketweibo.MyApplication;
 import me.apqx.pocketweibo.R;
-import me.apqx.pocketweibo.WeiboItemRecyclerAdapter;
-import me.apqx.pocketweibo.model.WeiboServer;
+import me.apqx.pocketweibo.adapter.WeiboItemRecyclerAdapter;
 import me.apqx.pocketweibo.presenter.DownloadPresenter;
 import me.apqx.pocketweibo.presenter.IDownloadPresenter;
 import me.apqx.pocketweibo.presenter.IUserPagePresenter;
 import me.apqx.pocketweibo.presenter.UserPagePresenter;
-import me.apqx.pocketweibo.struct.ParseJsonTools;
 import me.apqx.pocketweibo.bean.UserData;
 import me.apqx.pocketweibo.bean.WeiboItemData;
 import me.apqx.pocketweibo.model.ViewTools;
-import me.apqx.pocketweibo.model.WebTools;
 import me.apqx.pocketweibo.customView.SwipeActivityHelper;
 import me.apqx.pocketweibo.customView.SwipeActivityLayout;
 
