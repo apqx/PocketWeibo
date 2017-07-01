@@ -19,6 +19,7 @@ import retrofit2.http.Url;
 
 /**
  * Created by apqx on 2017/6/14.
+ * 获取用户微博信息的接口
  */
 
 public interface WeiboServer {

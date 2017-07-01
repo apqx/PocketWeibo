@@ -14,6 +14,7 @@ import android.widget.Scroller;
 
 /**
  * Created by apqx on 2017/5/17.
+ * 用于实现Activity的滑动退出
  */
 
 public class SwipeActivityLayout extends LinearLayout {

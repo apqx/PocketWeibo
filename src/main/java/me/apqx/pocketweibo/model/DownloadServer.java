@@ -8,6 +8,7 @@ import retrofit2.http.Url;
 
 /**
  * Created by apqx on 2017/6/14.
+ * 用于下载的接口
  */
 
 public interface DownloadServer {

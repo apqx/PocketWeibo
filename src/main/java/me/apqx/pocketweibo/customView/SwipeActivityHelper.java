@@ -4,6 +4,7 @@ import android.app.Activity;
 
 /**
  * Created by apqx on 2017/5/17.
+ * 用于实现Activity滑动退出的帮助类
  */
 
 public class SwipeActivityHelper {

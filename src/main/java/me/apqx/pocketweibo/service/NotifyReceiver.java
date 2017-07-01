@@ -6,6 +6,7 @@ import android.content.Intent;
 
 /**
  * Created by apqx on 2017/6/8.
+ * 用于启动后台服务的广播接收器
  */
 
 public class NotifyReceiver extends BroadcastReceiver {
